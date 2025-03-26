@@ -1,6 +1,6 @@
 const express = require('express');
 const NytController = require('../controllers/nytController');
-const { NytPuzzle, Solution, User } = require('../models'); // Adjust the import based on your project structure
+const { NytPuzzle, Solution, User } = require('./../models');
 
 const router = express.Router();
 const nytController = new NytController(NytPuzzle, Solution, User);
