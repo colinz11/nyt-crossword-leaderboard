@@ -1,7 +1,6 @@
-const { NytPuzzle, Solution, User } = require('../models'); // Adjust the import based on your project structure
 const NytService = require('../services/nytService');
-const moment = require('moment'); // Add moment.js for date manipulation
-require('dotenv').config(); // Load environment variables
+const moment = require('moment');
+require('dotenv').config();
 
 class NytController {
     constructor(puzzleModel, solutionModel, userModel) {
@@ -12,10 +11,19 @@ class NytController {
 
     async fetchAndSavePuzzlesByDateRange(req, res) {
         const { type, start, end } = req.query;
-        const token = process.env.NYT_TOKEN; // Get the token from environment variables
+        const token = process.env.NYT_TOKEN;
+
+        if (!type || !start || !end) {
+            return res.status(400).json({ message: 'Missing required query parameters: type, start, end' });
+        }
+
         const nytService = new NytService(token);
         const startDate = moment(start);
         const endDate = moment(end);
+
+        if (!startDate.isValid() || !endDate.isValid()) {
+            return res.status(400).json({ message: 'Invalid date format' });
+        }
 
         try {
             let currentStartDate = startDate;
@@ -49,8 +57,17 @@ class NytController {
 
     async fetchAndSaveSolutionsForUser(req, res) {
         const { userId, start, end } = req.query;
+
+        if (!userId || !start || !end) {
+            return res.status(400).json({ message: 'Missing required query parameters: userId, start, end' });
+        }
+
         const startDate = moment(start);
         const endDate = moment(end);
+
+        if (!startDate.isValid() || !endDate.isValid()) {
+            return res.status(400).json({ message: 'Invalid date format' });
+        }
 
         try {
             // Query the user table for the cookie value (token)
@@ -68,12 +85,12 @@ class NytController {
 
             // Fetch and save solutions for the puzzles
             await Promise.all(puzzles.map(async (puzzle) => {
-                const solutionData = await nytService.fetchSolution(puzzle.puzzle_id);
-                const newSolution = new this.solutionModel({
-                    ...solutionData,
-                    userId: user._id
-                });
-                await newSolution.save();
+                const solutionData = await nytService.fetchSolution(puzzle.puzzle_id, user.userID);
+                await this.solutionModel.findOneAndUpdate(
+                    { userId: user._id, puzzle_id: puzzle.puzzle_id },
+                    { ...solutionData, userId: user._id },
+                    { upsert: true, new: true }
+                );
             }));
 
             res.status(200).json({ message: 'Solutions fetched and saved successfully' });

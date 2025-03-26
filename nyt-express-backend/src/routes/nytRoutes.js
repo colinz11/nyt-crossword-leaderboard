@@ -1,14 +1,12 @@
 const express = require('express');
 const NytController = require('../controllers/nytController');
-
+const { NytPuzzle, Solution, User } = require('../models'); 
 const router = express.Router();
-const nytController = new NytController();
 
-function setRoutes(app) {
-    router.get('/articles', nytController.fetchArticles.bind(nytController));
-    router.post('/articles', nytController.saveArticle.bind(nytController));
-    
-    app.use('/nyt', router);
-}
+const nytController = new NytController(NytPuzzle, Solution, User);
 
-module.exports = setRoutes;
+// Define the routes
+router.get('/fetch-and-save-puzzles-by-date-range', nytController.fetchAndSavePuzzlesByDateRange.bind(nytController));
+router.get('/fetch-and-save-solutions-for-user', nytController.fetchAndSaveSolutionsForUser.bind(nytController));
+
+module.exports = router;

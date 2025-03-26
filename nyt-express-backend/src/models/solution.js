@@ -44,20 +44,16 @@ const calcsSchema = new mongoose.Schema({
 
 const firstsSchema = new mongoose.Schema({
     checked: {
-        type: Number,
-        required: true
+        type: Number
     },
     cleared: {
-        type: Number,
-        required: true
+        type: Number
     },
     opened: {
-        type: Number,
-        required: true
+        type: Number
     },
     solved: {
-        type: Number,
-        required: true
+        type: Number
     }
 });
 
@@ -85,15 +81,13 @@ const solutionSchema = new mongoose.Schema({
     },
     minGuessTime: {
         type: Number,
-        required: true
     },
     lastSolve: {
         type: Number,
         required: true
     },
     autocheckEnabled: {
-        type: Boolean,
-        required: true
+        type: Boolean
     }
 });
 
