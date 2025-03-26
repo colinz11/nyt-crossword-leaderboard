@@ -99,6 +99,53 @@ class NytController {
             res.status(500).json({ message: 'Error fetching or saving solutions for user', error: error.message });
         }
     }
+
+    async refreshAll(req, res) {
+        const token = process.env.NYT_TOKEN;
+
+        if (!token) {
+            return res.status(400).json({ message: 'Missing NYT token' });
+        }
+
+        const nytService = new NytService(token);
+
+        try {
+            // Fetch all puzzles
+            const puzzles = await nytService.fetchPuzzles('mini', '2020-01-01', moment().format('YYYY-MM-DD'));
+            await Promise.all(puzzles.map(async (puzzleData) => {
+                await this.puzzleModel.findOneAndUpdate(
+                    { puzzle_id: puzzleData.puzzle_id },
+                    puzzleData,
+                    { upsert: true, new: true }
+                );
+            }));
+
+            // Fetch all users
+            const users = await this.userModel.find();
+
+            // Fetch and save solutions for each user
+            const puzzleIds = puzzles.map(puzzle => puzzle.puzzle_id);
+            await Promise.all(users.map(async (user) => {
+                const userId = user._id;
+                const token = user.cookie;
+                const nytService = new NytService(token);
+
+                await Promise.all(puzzleIds.map(async (puzzleId) => {
+                    const solutionData = await nytService.fetchSolution(puzzleId, userId);
+                    await this.solutionModel.findOneAndUpdate(
+                        { userId: userId, puzzle_id: puzzleId },
+                        { ...solutionData, userId: userId },
+                        { upsert: true, new: true }
+                    );
+                }));
+            }));
+
+            res.status(200).json({ message: 'All puzzles and solutions fetched and saved successfully' });
+        } catch (error) {
+            console.error('Error refreshing all puzzles and solutions:', error.message);
+            res.status(500).json({ message: 'Error refreshing all puzzles and solutions', error: error.message });
+        }
+    }
 }
 
 module.exports = NytController;
