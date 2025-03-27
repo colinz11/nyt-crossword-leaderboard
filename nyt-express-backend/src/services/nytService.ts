@@ -104,7 +104,12 @@ class NytService {
             const path = `svc/crosswords/v3/puzzles.json?publish_type=${type}&date_start=${currentStartDate.format('YYYY-MM-DD')}&date_end=${currentEndDate.format('YYYY-MM-DD')}`;
             try {
                 const json = await this.nyt(path);
-                puzzles.push(...json.results.map(this.transformPuzzleData));
+                if (json.results && Array.isArray(json.results)) {
+                    puzzles.push(...json.results.map(this.transformPuzzleData));
+                }
+                else {
+                    console.log(`No results returned for range ${currentStartDate.format('YYYY-MM-DD')} to ${currentEndDate.format('YYYY-MM-DD')}`);
+                }
             } catch (error: any) {
                 console.error(`Error fetching puzzles for range ${currentStartDate.format('YYYY-MM-DD')} to ${currentEndDate.format('YYYY-MM-DD')}:`, error.message);
                 throw new Error('Failed to fetch puzzles');
@@ -122,6 +127,9 @@ class NytService {
         const path = `svc/crosswords/v6/game/${puzzleId}.json`;
         try {
             const json = await this.nyt(path);
+            if (!json) {
+                console.log(`No solution data returned for puzzle ID ${puzzleId}`);
+            }
             return this.transformSolutionData(json, puzzleId, userId);
         } catch (error: any) {
             console.error(`Error fetching solution for puzzle ID ${puzzleId}:`, error.message);

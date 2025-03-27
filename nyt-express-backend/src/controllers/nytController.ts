@@ -94,7 +94,7 @@ class NytController {
             await Promise.all(puzzles.map(async (puzzle) => {
                 const solutionData = await nytService.fetchSolution(String(puzzle.puzzleID), String(user.userID));
                 await this.solutionModel.findOneAndUpdate(
-                    { userID: user._id, puzzleID: puzzle.puzzleID },
+                    { userID: user.userID, puzzleID: puzzle.puzzleID },
                     { ...solutionData, userID: userID },
                     { upsert: true, new: true }
                 );
