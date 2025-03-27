@@ -1,24 +1,36 @@
-const UserEngine = require('./userEngine');
-const { NytPuzzle, Solution, User } = require('../models'); // Adjust the import based on your project structure
+import UserEngine from './userEngine';
+import { Puzzle } from '../models/puzzle';
+import { Solution } from '../models/solution';
+import { User, UserDocument } from '../models/user';
+
+interface UserStats {
+    userId: string;
+    username: string;
+    percentageSolved: number;
+    averageSolveTime: number;
+    totalPuzzlesSolved: number;
+}
 
 class LeaderboardEngine {
+    private userEngine: UserEngine;
+
     constructor() {
-        this.userEngine = new UserEngine(NytPuzzle, Solution, User);
+        this.userEngine = new UserEngine(Puzzle, Solution, User);
     }
 
-    async rankBestSolvers() {
-        const users = await User.find();
-        const userStats = [];
+    async rankBestSolvers(): Promise<UserStats[]> {
+        const users: UserDocument[] = await User.find();
+        const userStats: UserStats[] = [];
 
         for (const user of users) {
-            await this.userEngine.getUserSolutions(user._id);
+            await this.userEngine.getUserSolutions(user.userID.toString());
             const percentageSolved = this.userEngine.getPercentageOfPuzzlesSolved();
             const averageSolveTime = this.userEngine.getAverageSolveTime();
             const totalPuzzlesSolved = this.userEngine.getTotalPuzzlesSolved();
 
             userStats.push({
-                userId: user._id,
-                username: user.username,
+                userId: user.userID.toString(),
+                username: user.name,
                 percentageSolved,
                 averageSolveTime,
                 totalPuzzlesSolved
@@ -40,4 +52,4 @@ class LeaderboardEngine {
     }
 }
 
-module.exports = LeaderboardEngine;
+export default LeaderboardEngine;
