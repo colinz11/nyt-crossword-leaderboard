@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import nytRoutes from './routes/nytRoutes';
+import userRoutes from './routes/userRoutes';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -22,6 +23,8 @@ mongoose.connect(process.env.DATABASE_URL as string)
     });
 
 app.use('/api/nyt', nytRoutes);
+app.use('/api/users', userRoutes);
+
 
 // Error handling middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {

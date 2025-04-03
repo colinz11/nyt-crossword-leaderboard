@@ -4,8 +4,9 @@
   "description": "A backend service to query data from the New York Times and store it in a database.",
   "main": "src/app.js",
   "scripts": {
-    "start": "node dist/app.js",
-    "dev": "nodemon dist/app.js"
+    "build": "tsc",
+    "start": "npm run build && node dist/app.js",
+    "dev": "npm run build && nodemon dist/app.js"
   },
   "dependencies": {
     "@types/express": "^5.0.1",
