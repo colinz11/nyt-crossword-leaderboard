@@ -10,6 +10,7 @@ class UserEngine {
     private solutionModel: Model<SolutionDocument>;
     private puzzleModel: Model<PuzzleDocument>;
     private userSolutions: SolutionDocument[] = [];
+    private solvedPuzzles: SolutionDocument[] = [];
     private sortedSolutions: EnrichedSolution[] = [];
 
     constructor(solutionModel: Model<SolutionDocument>, puzzleModel: Model<PuzzleDocument>) {
@@ -21,7 +22,7 @@ class UserEngine {
         try {
             // Fetch all solutions for the user
             this.userSolutions  = await this.solutionModel.find({ userID }).exec();
-    
+            this.solvedPuzzles = this.userSolutions.filter(solution => solution.calcs?.solved);
             // Extract unique puzzleIDs from the solutions
             const puzzleIDs = [...new Set(this.userSolutions.map(solution => solution.puzzleID))];
     
@@ -44,7 +45,7 @@ class UserEngine {
             this.sortedSolutions = solutionsWithDates.sort(
                 (a, b) => new Date(a.printDate).getTime() - new Date(b.printDate).getTime()
             );
-    
+            
     
             console.log(`User solutions fetched and sorted for userID ${userID}:`, this.userSolutions.length);
         } catch (error) {
@@ -57,13 +58,11 @@ class UserEngine {
         const totalSolveTime = this.userSolutions.reduce((acc, solution) => {
             return acc + (solution.calcs?.secondsSpentSolving || 0);
         }, 0);
-    
-        const solvedPuzzles = this.userSolutions.filter(solution => solution.calcs?.solved).length;
-        return solvedPuzzles > 0 ? parseFloat((totalSolveTime / solvedPuzzles).toFixed(2)) : 0;
+        return this.solvedPuzzles.length > 0 ? parseFloat((totalSolveTime / this.solvedPuzzles.length).toFixed(2)) : 0;
     }
     
     getTotalPuzzlesSolved(): number {
-        return this.userSolutions.filter(solution => solution.calcs?.solved).length;
+        return this.solvedPuzzles.length;
     }
     
     getCurrentStreak(): number {
@@ -100,14 +99,14 @@ class UserEngine {
     }
 
     getAutoCompletePercentage(): number {
-        const solvedPuzzles = this.userSolutions.filter(solution => solution.calcs?.solved);
-        const autoCompletedPuzzles = solvedPuzzles.filter(solution => solution.calcs?.solved && solution.autocheckEnabled);
+      
+        const autoCompletedPuzzles = this.solvedPuzzles.filter(solution => solution.autocheckEnabled);
     
-        if (solvedPuzzles.length === 0) {
+        if (this.solvedPuzzles.length === 0) {
             return 0; // Avoid division by zero
         }
     
-        const percentage = (autoCompletedPuzzles.length / solvedPuzzles.length);
+        const percentage = (autoCompletedPuzzles.length / this.solvedPuzzles.length);
         return parseFloat(percentage.toFixed(4)); // Return percentage rounded to 2 decimal places
     }
 }
