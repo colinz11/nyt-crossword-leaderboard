@@ -26,6 +26,17 @@ export const getUserStats = async (req: Request, res: Response): Promise<void> =
         const longestStreak = userEngine.getLongestStreak();
         const autoCompletePct = userEngine.getAutoCompletePercentage();
 
+        const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+        // Get stats for each day of the week
+        const statsByDay = daysOfWeek.map(day => {
+            const stats = userEngine.getStatsByDay(day);
+            return {
+            day,
+            stats,
+            };
+        });
+
         // Return stats as JSON
         res.status(200).json({
             averageSolveTime,
@@ -33,7 +44,9 @@ export const getUserStats = async (req: Request, res: Response): Promise<void> =
             currentStreak,
             longestStreak,
             autoCompletePct,
+            statsByDay
         });
+
     } catch (error) {
         console.error('Error fetching user stats:', error);
         res.status(500).json({ error: 'Internal server error' });

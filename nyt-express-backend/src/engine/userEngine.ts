@@ -2,9 +2,19 @@ import { Model } from 'mongoose';
 import { PuzzleDocument } from '../models/puzzle';
 import { SolutionDocument } from '../models/solution';
 import { UserDocument } from '../models/user';
+import moment from 'moment-timezone'; // Ensure moment.js is installed
 
 // Define a new type for enriched solutions
 type EnrichedSolution = SolutionDocument & { printDate: string };
+
+// Update locale to set Sunday as the start of the week
+moment.updateLocale('en', {
+    week: {
+        dow: 1, // Sunday is the first day of the week
+        doy: 4, // The week containing Jan 6th is the first week of the year
+    },
+});
+
 
 class UserEngine {
     private solutionModel: Model<SolutionDocument>;
@@ -108,6 +118,71 @@ class UserEngine {
     
         const percentage = (autoCompletedPuzzles.length / this.solvedPuzzles.length);
         return parseFloat(percentage.toFixed(4)); // Return percentage rounded to 2 decimal places
+    }
+
+    getStatsByDay(dayOfWeek: string): {
+        averageSolveTime: number;
+        bestSolveTime: number;
+        bestDate: string;
+        thisWeeksTime: number;
+        thisWeeksDate: string;
+    } {
+        // Filter solutions for the given day of the week and only include solved solutions
+        const solutionsForDay = this.sortedSolutions.filter(solution => {
+            // Add one day to the printDate to adjust for the offset
+            const adjustedDate = moment(solution.printDate).add(1, 'day');
+            const solutionDay = adjustedDate.format('dddd'); // Get the day of the week in EST
+            return solutionDay.toLowerCase() === dayOfWeek.toLowerCase() && solution.calcs?.solved;
+        });
+    
+        if (solutionsForDay.length === 0) {
+            // Return default values if no solutions exist for the given day
+            return {
+                averageSolveTime: -1,
+                bestSolveTime: -1,
+                bestDate: '',
+                thisWeeksTime: -1,
+                thisWeeksDate: '',
+            };
+        }
+    
+        // Calculate average solve time
+        const totalSolveTime = solutionsForDay.reduce(
+            (acc, solution) => acc + (solution.calcs?.secondsSpentSolving || 0),
+            0
+        );
+        const averageSolveTime = totalSolveTime / solutionsForDay.length;
+    
+        // Find the best solve time and its date
+        const bestSolve = solutionsForDay.reduce(
+            (best, solution) => {
+                const adjustedDate = moment(solution.printDate).add(1, 'day');
+                return solution.calcs?.secondsSpentSolving !== undefined &&
+                    solution.calcs.secondsSpentSolving < best.time
+                    ? { time: solution.calcs.secondsSpentSolving, date: adjustedDate.format('YYYY-MM-DD') }
+                    : best;
+            },
+            { time: Number.MAX_SAFE_INTEGER, date: '' }
+        );
+    
+        // Find this week's solve time and its date
+        const thisWeeksSolve = solutionsForDay.find(solution => {
+            const adjustedDate = moment(solution.printDate).add(1, 'day');
+            return adjustedDate.isSame(moment(), 'week') &&
+                adjustedDate.format('dddd').toLowerCase() === dayOfWeek.toLowerCase();
+        });
+    
+        // Calculate the date for the given day of the week in the current week
+        const dayIndex = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].indexOf(dayOfWeek.toLowerCase());
+        const thisWeeksDate = moment().startOf('week').add(dayIndex, 'days').format('YYYY-MM-DD');
+    
+        return {
+            averageSolveTime: parseFloat(averageSolveTime.toFixed(2)),
+            bestSolveTime: bestSolve.time === Number.MAX_SAFE_INTEGER ? -1 : bestSolve.time,
+            bestDate: bestSolve.date,
+            thisWeeksTime: thisWeeksSolve?.calcs?.secondsSpentSolving || -1,
+            thisWeeksDate: thisWeeksDate, // Always use this week's date in EST
+        };
     }
 }
 
