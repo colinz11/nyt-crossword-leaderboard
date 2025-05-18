@@ -2,25 +2,6 @@
 
 This project is an Express.js backend service that interacts with the New York Times API to fetch and store articles in a database.
 
-## Project Structure
-
-```
-nyt-express-backend
-├── src
-│   ├── app.js                # Entry point of the application
-│   ├── controllers           # Contains controllers for handling requests
-│   │   └── nytController.js  # Controller for New York Times articles
-│   ├── routes                # Contains route definitions
-│   │   └── nytRoutes.js      # Routes for New York Times articles
-│   ├── models                # Contains database models
-│   │   └── nytModel.js       # Model for New York Times articles
-│   └── services              # Contains services for API interactions
-│       └── nytService.js     # Service for interacting with New York Times API
-├── package.json              # NPM configuration file
-├── .env                      # Environment variables
-├── .gitignore                # Files and directories to ignore by git
-└── README.md                 # Project documentation
-```
 
 ## Setup Instructions
 
