@@ -45,19 +45,3 @@ nyt-express-backend
    ```
    npm start
    ```
-
-## API Usage
-
-### Fetch Articles
-
-- **Endpoint**: `GET /api/articles`
-- **Description**: Fetches articles from the New York Times API.
-
-### Save Article
-
-- **Endpoint**: `POST /api/articles`
-- **Description**: Saves an article to the database. Requires article data in the request body.
-
-## License
-
-This project is licensed under the MIT License.
