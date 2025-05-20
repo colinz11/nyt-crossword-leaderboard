@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import { Typography, Container } from '@mui/material';
 import SummaryStatistics from '../components/SummaryStatistics';
 import WeeklyBarChart from '../components/WeeklyBarChart';
 import { fetchUserStats } from '../services/FetchData';
 
-const UserPage: React.FC = () => {
-  const { userId } = useParams<{ userId: string }>(); // Extract userId from the URL
+const UserPage: React.FC<{ userId: string }> = ({ userId }) => {
   const [stats, setStats] = useState<{ value: number | string; label: string }[]>([]);
   const [weeklyData, setWeeklyData] = useState<
     {
@@ -24,7 +22,7 @@ const UserPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchStatsAsync = async () => {
       try {
         if (!userId) {
           setError('User ID is missing.');
@@ -48,7 +46,7 @@ const UserPage: React.FC = () => {
       }
     };
 
-    fetchStats();
+    fetchStatsAsync();
   }, [userId]); // Re-run the effect if the userId changes
 
   if (error) {

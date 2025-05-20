@@ -138,10 +138,10 @@ class UserEngine {
         if (solutionsForDay.length === 0) {
             // Return default values if no solutions exist for the given day
             return {
-                averageSolveTime: -1,
-                bestSolveTime: -1,
+                averageSolveTime: 0,
+                bestSolveTime: 0,
                 bestDate: '',
-                thisWeeksTime: -1,
+                thisWeeksTime: 0,
                 thisWeeksDate: '',
             };
         }
@@ -178,9 +178,9 @@ class UserEngine {
     
         return {
             averageSolveTime: parseFloat(averageSolveTime.toFixed(2)),
-            bestSolveTime: bestSolve.time === Number.MAX_SAFE_INTEGER ? -1 : bestSolve.time,
+            bestSolveTime: bestSolve.time === Number.MAX_SAFE_INTEGER ? 0 : bestSolve.time,
             bestDate: bestSolve.date,
-            thisWeeksTime: thisWeeksSolve?.calcs?.secondsSpentSolving || -1,
+            thisWeeksTime: thisWeeksSolve?.calcs?.secondsSpentSolving || 0,
             thisWeeksDate: thisWeeksDate, // Always use this week's date in EST
         };
     }
