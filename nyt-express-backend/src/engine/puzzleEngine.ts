@@ -17,13 +17,11 @@ interface BoardDataByUserId {
 
 class PuzzleEngine {
     private solutionModel: Model<SolutionDocument>;
-    private userModel: Model<UserDocument>;
     private solutions: SolutionDocument[];
     private userMap: UserMap;
 
-    constructor(solutionModel: Model<SolutionDocument>, userModel: Model<UserDocument>) {
+    constructor(solutionModel: Model<SolutionDocument>) {
         this.solutionModel = solutionModel;
-        this.userModel = userModel;
         this.solutions = [];
         this.userMap = {};
     }
@@ -33,16 +31,9 @@ class PuzzleEngine {
             throw new Error('Missing required parameter: gameId');
         }
 
-        this.solutions = await this.solutionModel.find({ puzzleID: gameId });
-        const userIds = this.solutions.map(solution => solution.userID);
-
-        const users = await this.userModel.find({ _id: { $in: userIds } });
-        this.userMap = users.reduce((acc: UserMap, user) => {
-            acc[user.userID.toString()] = user.name;
-            return acc;
-        }, {});
-
-        return this.solutions;
+        // Return the list of solutions directly
+        const solutions = await this.solutionModel.find({ puzzleID: gameId });
+        return solutions;
     }
 
     getSolutionDataByUserId(): BoardDataByUserId {

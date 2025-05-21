@@ -16,3 +16,13 @@ export const fetchUserStats = async (userID: string) => {
         throw error; // Re-throw the error for the caller to handle
     }
 };
+
+export const fetchGameSolutions = async (puzzleID: string) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/api/puzzles/${puzzleID}/solutions`);
+        return response.data; // Return the stats data from the response
+    } catch (error) {
+        console.error(`Error fetching puzzle solutions for puzzleID ${puzzleID}:`, error);
+        throw error; // Re-throw the error for the caller to handle
+    }
+};

@@ -1,7 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import nytRoutes from './routes/nytRoutes';
-import userRoutes from './routes/userRoutes';
 import dotenv from 'dotenv';
 import cors from 'cors';
 
@@ -31,8 +30,7 @@ mongoose.connect(process.env.DATABASE_URL as string)
         console.error('Database connection error:', err);
     });
 
-app.use('/api/nyt', nytRoutes);
-app.use('/api/users', userRoutes);
+app.use('/api', nytRoutes);
 
 
 // Error handling middleware
