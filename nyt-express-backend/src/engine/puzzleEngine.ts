@@ -37,7 +37,7 @@ class PuzzleEngine {
 
       const solutions = await this.solutionModel.find({ puzzleID: puzzleId });
       // Assuming 'calcs.secondsSpentSolving' exists and indicates a solved puzzle
-      const solvedSolutions = solutions.filter(solution => solution.calcs && solution.calcs.secondsSpentSolving > 0);
+      const solvedSolutions = solutions.filter(solution => solution.calcs && solution.calcs.solved && solution.calcs.secondsSpentSolving > 0);
       const sortedSolutions = solvedSolutions.sort((a, b) => (a.calcs?.secondsSpentSolving || 0) - (b.calcs?.secondsSpentSolving || 0));
       const topSolutions = sortedSolutions.slice(0, 5);
 

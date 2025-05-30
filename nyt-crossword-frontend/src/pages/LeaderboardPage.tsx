@@ -1,31 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Container, Typography, Table, TableBody, TableCell, TableHead, TableRow, Paper, Grid, Box, CircularProgress, Alert
+    Container, Typography, Grid, CircularProgress, Alert
 } from '@mui/material';
 import {
     fetchLeaderboardByAverageTime,
     fetchLeaderboardByPuzzlesSolved,
     fetchLeaderboardByLongestStreak
 } from '../services/FetchData';
+import LeaderboardCategory from '../components/LeaderboardCategory';
 
-// Interfaces for leaderboard data
-interface AverageTimeEntry {
+interface LeaderboardEntry {
     userID: string;
     username?: string;
-    averageSolveTime: number;
-    puzzlesSolvedCount: number;
-}
-
-interface PuzzlesSolvedEntry {
-    userID: string;
-    username?: string;
-    puzzlesSolvedCount: number;
-}
-
-interface LongestStreakEntry {
-    userID: string;
-    username?: string;
-    longestStreak: number;
+    value: number | string;
+    valueLabel: string;
 }
 
 // Utility to format time (similar to PuzzlePage)
@@ -43,13 +31,13 @@ const formatTime = (seconds: number): string => {
 };
 
 const LeaderboardPage: React.FC = () => {
-    const [averageTimeLeaderboard, setAverageTimeLeaderboard] = useState<AverageTimeEntry[]>([]);
-    const [puzzlesSolvedLeaderboard, setPuzzlesSolvedLeaderboard] = useState<PuzzlesSolvedEntry[]>([]);
-    const [longestStreakLeaderboard, setLongestStreakLeaderboard] = useState<LongestStreakEntry[]>([]);
+    const [averageTimeLeaderboard, setAverageTimeLeaderboard] = useState<LeaderboardEntry[]>([]);
+    const [puzzlesSolvedLeaderboard, setPuzzlesSolvedLeaderboard] = useState<LeaderboardEntry[]>([]);
+    const [longestStreakLeaderboard, setLongestStreakLeaderboard] = useState<LeaderboardEntry[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-    const limit = 5; // Default limit for leaderboards
+    const limit = 5;
 
     useEffect(() => {
         const fetchLeaderboards = async () => {
@@ -61,9 +49,30 @@ const LeaderboardPage: React.FC = () => {
                     fetchLeaderboardByPuzzlesSolved(limit),
                     fetchLeaderboardByLongestStreak(limit)
                 ]);
-                setAverageTimeLeaderboard(avgTimeData || []);
-                setPuzzlesSolvedLeaderboard(puzzlesSolvedData || []);
-                setLongestStreakLeaderboard(longestStreakData || []);
+                setAverageTimeLeaderboard(
+                    (avgTimeData || []).map((entry: any) => ({
+                        userID: entry.userID,
+                        username: entry.username,
+                        value: formatTime(entry.averageSolveTime),
+                        valueLabel: 'Avg. Time'
+                    }))
+                );
+                setPuzzlesSolvedLeaderboard(
+                    (puzzlesSolvedData || []).map((entry: any) => ({
+                        userID: entry.userID,
+                        username: entry.username,
+                        value: entry.puzzlesSolvedCount,
+                        valueLabel: 'Puzzles Solved'
+                    }))
+                );
+                setLongestStreakLeaderboard(
+                    (longestStreakData || []).map((entry: any) => ({
+                        userID: entry.userID,
+                        username: entry.username,
+                        value: entry.longestStreak,
+                        valueLabel: 'Streak'
+                    }))
+                );
             } catch (err: any) {
                 console.error("Failed to fetch leaderboards:", err);
                 setError(err.message || "An unknown error occurred while fetching leaderboard data.");
@@ -97,101 +106,22 @@ const LeaderboardPage: React.FC = () => {
                 🏆 General Leaderboards 🏆
             </Typography>
             <Grid container spacing={4}>
-                {/* Top Solvers by Average Time */}
-                <Grid item xs={12} md={4}>
-                    <Paper elevation={3} sx={{ p: 2 }}>
-                        <Typography variant="h5" component="h2" gutterBottom align="center">
-                            Fastest Solvers
-                        </Typography>
-                        <Typography variant="subtitle1" align="center" gutterBottom sx={{ mb: 2 }}>
-                            (Average Solve Time)
-                        </Typography>
-                        {averageTimeLeaderboard.length > 0 ? (
-                            <Table size="small">
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell>Rank</TableCell>
-                                        <TableCell>User</TableCell>
-                                        <TableCell align="right">Avg. Time</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {averageTimeLeaderboard.map((entry, index) => (
-                                        <TableRow key={entry.userID}>
-                                            <TableCell>{index + 1}</TableCell>
-                                            <TableCell>{entry.username || entry.userID}</TableCell>
-                                            <TableCell align="right">{formatTime(entry.averageSolveTime)}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        ) : <Typography align="center">No data available.</Typography>}
-                    </Paper>
-                </Grid>
-
-                {/* Top Solvers by Puzzles Solved */}
-                <Grid item xs={12} md={4}>
-                    <Paper elevation={3} sx={{ p: 2 }}>
-                        <Typography variant="h5" component="h2" gutterBottom align="center">
-                            Most Puzzles Solved
-                        </Typography>
-                        <Typography variant="subtitle1" align="center" gutterBottom sx={{ mb: 2 }}>
-                            (Total Count)
-                        </Typography>
-                        {puzzlesSolvedLeaderboard.length > 0 ? (
-                            <Table size="small">
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell>Rank</TableCell>
-                                        <TableCell>User</TableCell>
-                                        <TableCell align="right">Puzzles Solved</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {puzzlesSolvedLeaderboard.map((entry, index) => (
-                                        <TableRow key={entry.userID}>
-                                            <TableCell>{index + 1}</TableCell>
-                                            <TableCell>{entry.username || entry.userID}</TableCell>
-                                            <TableCell align="right">{entry.puzzlesSolvedCount}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        ) : <Typography align="center">No data available.</Typography>}
-                    </Paper>
-                </Grid>
-
-                {/* Top Solvers by Longest Streak */}
-                <Grid item xs={12} md={4}>
-                    <Paper elevation={3} sx={{ p: 2 }}>
-                        <Typography variant="h5" component="h2" gutterBottom align="center">
-                            Longest Streaks
-                        </Typography>
-                        <Typography variant="subtitle1" align="center" gutterBottom sx={{ mb: 2 }}>
-                            (Consecutive Days Solved)
-                        </Typography>
-                        {longestStreakLeaderboard.length > 0 ? (
-                            <Table size="small">
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell>Rank</TableCell>
-                                        <TableCell>User</TableCell>
-                                        <TableCell align="right">Streak</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {longestStreakLeaderboard.map((entry, index) => (
-                                        <TableRow key={entry.userID}>
-                                            <TableCell>{index + 1}</TableCell>
-                                            <TableCell>{entry.username || entry.userID}</TableCell>
-                                            <TableCell align="right">{entry.longestStreak} days</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        ) : <Typography align="center">No data available.</Typography>}
-                    </Paper>
-                </Grid>
+                <LeaderboardCategory
+                    title="Fastest Solvers"
+                    subtitle="(Average Solve Time)"
+                    entries={averageTimeLeaderboard}
+                />
+                <LeaderboardCategory
+                    title="Most Puzzles Solved"
+                    subtitle="(Total Count)"
+                    entries={puzzlesSolvedLeaderboard}
+                />
+                <LeaderboardCategory
+                    title="Longest Streaks"
+                    subtitle="(Consecutive Days Solved)"
+                    entries={longestStreakLeaderboard}
+                    valueSuffix="days"
+                />
             </Grid>
         </Container>
     );

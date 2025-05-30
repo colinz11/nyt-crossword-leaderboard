@@ -5,20 +5,20 @@ import { Puzzle, PuzzleDocument } from '../models/puzzle';
 import UserEngine from './userEngine'; // For streak calculation
 
 export interface LeaderboardUserAverageTime {
-    userID: string;
+    userID: number;
     username?: string;
     averageSolveTime: number;
     puzzlesSolvedCount: number;
 }
 
 export interface LeaderboardUserPuzzlesSolved {
-    userID: string;
+    userID: number;
     username?: string;
     puzzlesSolvedCount: number;
 }
 
 export interface LeaderboardUserLongestStreak {
-    userID: string;
+    userID: number;
     username?: string;
     longestStreak: number;
 }
@@ -90,14 +90,14 @@ export class LeaderboardEngine {
             const userEngineInstance = new UserEngine(this.solutionModel, this.puzzleModel);
             
             // Load this user's data into the UserEngine instance
-            await userEngineInstance.getUserSolutions(user.userID);
+            await userEngineInstance.getUserSolutions(user.userID.toString());
             
             // Now calculate the longest streak using UserEngine's method
             const longestStreak = userEngineInstance.getLongestStreak();
             
             userStreaks.push({
                 userID: user.userID,
-                username: user.username, // username is already selected from the userModel query
+                username: user.name, // username is already selected from the userModel query
                 longestStreak,
             });
         }
@@ -106,13 +106,13 @@ export class LeaderboardEngine {
         return userStreaks.slice(0, limit);
     }
 
-    private async enrichUsernames<T extends { userID: string, username?: string }>(results: T[]): Promise<T[]> {
+    private async enrichUsernames<T extends { userID: number, username?: string }>(results: T[]): Promise<T[]> {
         const userIDs = results.map(r => r.userID);
-        const users = await this.userModel.find({ userID: { $in: userIDs } }).select('userID username');
+        const users = await this.userModel.find({ userID: { $in: userIDs } }).select('userID name');
         const userMap = users.reduce((acc, user) => {
-            acc[user.userID] = user.username || user.userID; // Fallback to userID if username is not set
+            acc[user.userID] = user.name || user.userID; // Fallback to userID if username is not set
             return acc;
-        }, {} as Record<string, string>);
+        }, {} as Record<number, number | string>);
 
         return results.map(r => ({
             ...r,

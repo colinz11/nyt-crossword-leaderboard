@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { Typography, Container, Table, TableBody, TableCell, TableHead, TableRow, Paper, Box } from '@mui/material';
 import { fetchGameSolutions } from '../services/FetchData'; // Import the service
+import LeaderboardCategory from '../components/LeaderboardCategory';
 
 // Interface for the transformed solution data for the frontend
 interface TransformedSolution {
@@ -28,13 +30,19 @@ const formatTime = (seconds: number) => {
   return `${mins}m ${secs.toString().padStart(2, '0')}s`;
 };
 
-const PuzzlePage: React.FC<PuzzlePageProps> = ({ puzzleId }) => {
+const PuzzlePage: React.FC = () => {
+  const { puzzleId } = useParams<{ puzzleId: string }>();
   const [puzzleData, setPuzzleData] = useState<PuzzleData | null>(null);
   const [topSolutions, setTopSolutions] = useState<TransformedSolution[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!puzzleId) {
+      setError('No puzzle ID provided.');
+      setLoading(false);
+      return;
+    }
     const loadPuzzleData = async () => {
       setLoading(true);
       setError(null);
@@ -79,6 +87,13 @@ const PuzzlePage: React.FC<PuzzlePageProps> = ({ puzzleId }) => {
       })
     : 'N/A';
 
+  // Prepare leaderboard entries for the LeaderboardCategory component
+  const leaderboardEntries = topSolutions.map((sol, idx) => ({
+    userID: sol.userID,
+    value: formatTime(sol.solveTime),
+    valueLabel: 'Solve Time',
+  }));
+
   return (
     <Container>
       <Typography variant="h4" gutterBottom>
@@ -104,28 +119,11 @@ const PuzzlePage: React.FC<PuzzlePageProps> = ({ puzzleId }) => {
       <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
         Top Solutions
       </Typography>
-      {topSolutions.length > 0 ? (
-        <Paper>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>User ID</TableCell>
-                <TableCell>Solve Time</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {topSolutions.map((sol) => (
-                <TableRow key={sol.userID}>
-                  <TableCell>{sol.userID}</TableCell>
-                  <TableCell>{formatTime(sol.solveTime)}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Paper>
-      ) : (
-        <Typography>No solutions submitted yet, or data is unavailable.</Typography>
-      )}
+      <LeaderboardCategory
+        title="Top Solutions"
+        subtitle="(Fastest Solve Times)"
+        entries={leaderboardEntries}
+      />
     </Container>
   );
 };

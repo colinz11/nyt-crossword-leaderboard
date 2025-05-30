@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { Typography, Container } from '@mui/material';
 import SummaryStatistics from '../components/SummaryStatistics';
 import WeeklyBarChart from '../components/WeeklyBarChart';
 import { fetchUserStats } from '../services/FetchData';
 
-const UserPage: React.FC<{ userId: string }> = ({ userId }) => {
+const UserPage: React.FC = () => {
+  const { userId } = useParams<{ userId: string }>();
   const [stats, setStats] = useState<{ value: number | string; label: string }[]>([]);
   const [weeklyData, setWeeklyData] = useState<
     {
