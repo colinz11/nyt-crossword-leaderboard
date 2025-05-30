@@ -84,6 +84,7 @@ const PuzzlePage: React.FC = () => {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
+        timeZone: 'UTC', 
       })
     : 'N/A';
 

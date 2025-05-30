@@ -73,7 +73,7 @@ const UserPage: React.FC = () => {
       <Typography variant="h5" sx={{ textAlign: 'center', marginTop: 4, marginBottom: 2 }}>
         Weekly Solve Time Comparison
       </Typography>
-      <WeeklyBarChart data={weeklyData} />
+      {weeklyData && weeklyData.length > 0 && <WeeklyBarChart data={weeklyData} />}
     </Container>
   );
 };

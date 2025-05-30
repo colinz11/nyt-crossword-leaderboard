@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import UserPage from './pages/UserPage';
 import PuzzlePage from './pages/PuzzlePage'; // Assuming PuzzlePage exists
 import LeaderboardPage from './pages/LeaderboardPage';
