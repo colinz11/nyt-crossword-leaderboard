@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Typography, Container, Table, TableBody, TableCell, TableHead, TableRow, Paper, Box } from '@mui/material';
+import { Typography, Container, Paper, Box } from '@mui/material';
 import { fetchGameSolutions } from '../services/FetchData'; // Import the service
 import LeaderboardCategory from '../components/LeaderboardCategory';
 
