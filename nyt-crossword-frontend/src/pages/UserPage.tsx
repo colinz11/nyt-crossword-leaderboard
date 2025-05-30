@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { Typography, Container } from '@mui/material';
 import SummaryStatistics from '../components/SummaryStatistics';
 import WeeklyBarChart from '../components/WeeklyBarChart';
 import { fetchUserStats } from '../services/FetchData';
 
-const UserPage: React.FC<{ userId: string }> = ({ userId }) => {
+const UserPage: React.FC = () => {
+  const { userId } = useParams<{ userId: string }>();
   const [stats, setStats] = useState<{ value: number | string; label: string }[]>([]);
   const [weeklyData, setWeeklyData] = useState<
     {
@@ -71,7 +73,7 @@ const UserPage: React.FC<{ userId: string }> = ({ userId }) => {
       <Typography variant="h5" sx={{ textAlign: 'center', marginTop: 4, marginBottom: 2 }}>
         Weekly Solve Time Comparison
       </Typography>
-      <WeeklyBarChart data={weeklyData} />
+      {weeklyData && weeklyData.length > 0 && <WeeklyBarChart data={weeklyData} />}
     </Container>
   );
 };

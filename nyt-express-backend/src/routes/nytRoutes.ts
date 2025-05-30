@@ -5,6 +5,11 @@ import { Solution } from '../models/solution';
 import { User } from '../models/user';
 import { getUserStats } from '../controllers/userController';
 import { getPuzzleSolutions } from '../controllers/puzzleController';
+import {
+    getLeaderboardByAverageTime,
+    getLeaderboardByPuzzlesSolved,
+    getLeaderboardByLongestStreak
+} from '../controllers/leaderboardController';
 
 const router = Router();
 const nytController = new NytController(Puzzle, Solution, User);
@@ -15,5 +20,10 @@ router.post('/nyt/refresh-all', nytController.refreshAll.bind(nytController));
 router.post('/nyt/save-user', nytController.saveUser.bind(nytController));
 router.get('/users/stats/:userID', getUserStats);
 router.get('/puzzles/:puzzleId/solutions', getPuzzleSolutions);
+
+// Leaderboard Routes
+router.get('/leaderboard/average-time', getLeaderboardByAverageTime);
+router.get('/leaderboard/puzzles-solved', getLeaderboardByPuzzlesSolved);
+router.get('/leaderboard/longest-streak', getLeaderboardByLongestStreak);
 
 export default router;

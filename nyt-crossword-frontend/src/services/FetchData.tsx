@@ -17,6 +17,36 @@ export const fetchUserStats = async (userID: string) => {
     }
 };
 
+export const fetchLeaderboardByAverageTime = async (limit: number = 5) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/api/leaderboard/average-time?limit=${limit}`);
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching leaderboard by average time:`, error);
+        throw error;
+    }
+};
+
+export const fetchLeaderboardByPuzzlesSolved = async (limit: number = 5) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/api/leaderboard/puzzles-solved?limit=${limit}`);
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching leaderboard by puzzles solved:`, error);
+        throw error;
+    }
+};
+
+export const fetchLeaderboardByLongestStreak = async (limit: number = 5) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/api/leaderboard/longest-streak?limit=${limit}`);
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching leaderboard by longest streak:`, error);
+        throw error;
+    }
+};
+
 export const fetchGameSolutions = async (puzzleID: string) => {
     try {
         const response = await axios.get(`${API_BASE_URL}/api/puzzles/${puzzleID}/solutions`);
