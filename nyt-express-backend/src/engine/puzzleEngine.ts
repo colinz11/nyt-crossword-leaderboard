@@ -78,6 +78,41 @@ class PuzzleEngine {
 
         return boardDataByUserId;
     }
+
+    async getLatestPuzzle(): Promise<PuzzleDocument | null> {
+      // Sort by printDate in descending order and pick the first one
+      const latestPuzzle = await this.puzzleModel.findOne().sort({ printDate: -1 });
+      return latestPuzzle;
+    }
+
+    async getTopSolversForPuzzle(puzzleId: string, limit: number): Promise<SolutionDocument[]> {
+      // Find solutions for the given puzzleId
+      const solutions = await this.solutionModel.find({ puzzleID: puzzleId });
+      // Filter for solved puzzles and sort by time
+      const solvedSolutions = solutions.filter(solution => solution.calcs && solution.calcs.solved && solution.calcs.secondsSpentSolving > 0);
+      const sortedSolutions = solvedSolutions.sort((a, b) => (a.calcs?.secondsSpentSolving || 0) - (b.calcs?.secondsSpentSolving || 0));
+      // Return the top 'limit' solutions
+      return sortedSolutions.slice(0, limit);
+    }
+
+    async getPuzzleByPrintDate(dateString: string): Promise<PuzzleDocument | null> {
+      // The dateString is expected to be in 'YYYY-MM-DD' format.
+      // MongoDB stores dates as ISODate. We need to query for a date range
+      // that covers the entire day.
+      const startDate = new Date(dateString);
+      startDate.setUTCHours(0, 0, 0, 0); // Start of the day in UTC
+
+      const endDate = new Date(dateString);
+      endDate.setUTCHours(23, 59, 59, 999); // End of the day in UTC
+
+      const puzzle = await this.puzzleModel.findOne({
+        printDate: {
+          $gte: startDate,
+          $lte: endDate,
+        },
+      });
+      return puzzle;
+    }
 }
 
 export default PuzzleEngine;

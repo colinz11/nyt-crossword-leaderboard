@@ -17,6 +17,35 @@ export const fetchUserStats = async (userID: string) => {
     }
 };
 
+/**
+ * Fetch puzzle data for a specific date from the backend.
+ * @param dateString - The date string in YYYY-MM-DD format.
+ * @returns A promise resolving to the puzzle data for the given date.
+ */
+export const fetchPuzzleDataByDate = async (dateString: string) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/api/puzzles/by-date/${dateString}`);
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching puzzle data for date ${dateString}:`, error);
+        throw error;
+    }
+};
+
+/**
+ * Fetch today's puzzle data from the backend.
+ * @returns A promise resolving to today's puzzle data.
+ */
+export const fetchTodaysPuzzleData = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/api/puzzles/today`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching today\'s puzzle data:', error);
+        throw error;
+    }
+};
+
 export const fetchLeaderboardByAverageTime = async (limit: number = 5) => {
     try {
         const response = await axios.get(`${API_BASE_URL}/api/leaderboard/average-time?limit=${limit}`);

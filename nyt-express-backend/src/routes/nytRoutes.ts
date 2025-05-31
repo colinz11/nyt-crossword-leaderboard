@@ -4,7 +4,7 @@ import { Puzzle } from '../models/puzzle';
 import { Solution } from '../models/solution';
 import { User } from '../models/user';
 import { getUserStats } from '../controllers/userController';
-import { getPuzzleSolutions } from '../controllers/puzzleController';
+import { getPuzzleSolutions, getTodaysPuzzleDetails, getPuzzleByDate } from '../controllers/puzzleController';
 import {
     getLeaderboardByAverageTime,
     getLeaderboardByPuzzlesSolved,
@@ -25,5 +25,9 @@ router.get('/puzzles/:puzzleId/solutions', getPuzzleSolutions);
 router.get('/leaderboard/average-time', getLeaderboardByAverageTime);
 router.get('/leaderboard/puzzles-solved', getLeaderboardByPuzzlesSolved);
 router.get('/leaderboard/longest-streak', getLeaderboardByLongestStreak);
+
+// Puzzle Routes
+router.get('/api/puzzles/today', getTodaysPuzzleDetails);
+router.get('/api/puzzles/by-date/:date', getPuzzleByDate);
 
 export default router;
