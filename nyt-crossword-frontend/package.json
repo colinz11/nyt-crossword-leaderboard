@@ -3,32 +3,24 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.0",
-    "@mui/icons-material": "^7.1.0",
-    "@mui/material": "^7.1.0",
-    "@mui/styled-engine-sc": "^7.0.0",
-    "@mui/x-charts": "^7.28.0",
-    "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.2.0",
-    "@testing-library/user-event": "^13.5.0",
-    "@types/jest": "^27.5.2",
-    "@types/node": "^16.18.126",
-    "@types/react-calendar": "^4.1.0",
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.11.16",
+    "@mui/material": "^5.13.0",
+    "@types/node": "^16.18.31",
+    "@types/react": "^18.2.6",
+    "@types/react-dom": "^18.2.4",
+    "axios": "^1.4.0",
     "react": "^18.2.0",
-    "react-calendar": "^6.0.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^7.6.1",
-    "react-scripts": "^5.0.1",
-    "recharts": "^2.15.3",
-    "styled-components": "^6.1.16",
-    "typescript": "^4.9.5",
-    "web-vitals": "^2.1.4"
+    "react-router-dom": "^6.11.2",
+    "react-scripts": "5.0.1",
+    "recharts": "^2.6.2",
+    "typescript": "^4.9.5"
   },
   "scripts": {
-    "start": "react-scripts --openssl-legacy-provider start",
-    "build": "react-scripts --openssl-legacy-provider build",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -49,14 +41,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "@babel/core": "^7.26.10",
-    "@babel/preset-env": "^7.26.9",
-    "@babel/preset-react": "^7.26.3",
-    "@types/react": "^18.2.37",
-    "@types/react-dom": "^18.2.15",
-    "babel-loader": "^10.0.0",
-    "webpack": "^5.98.0"
   }
 }
