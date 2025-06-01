@@ -79,6 +79,7 @@ export class LeaderboardEngine {
 
     async getTopSolversByLongestStreak(limit: number = 5): Promise<LeaderboardUserLongestStreak[]> {
         const users = await this.userModel.find({}).select('userID name'); // DONT CHANGE THIS
+
         if (!users.length) return [];
 
         const userStreaks: LeaderboardUserLongestStreak[] = [];
@@ -94,7 +95,7 @@ export class LeaderboardEngine {
             
             // Now calculate the longest streak using UserEngine's method
             const longestStreak = userEngineInstance.getLongestStreak();
-            
+          
             userStreaks.push({
                 userID: user.userID,
                 username: user.name, // username is already selected from the userModel query
