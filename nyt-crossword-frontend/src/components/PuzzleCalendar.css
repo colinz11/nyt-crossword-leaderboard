@@ -1,0 +1,123 @@
+.puzzle-calendar {
+  width: 100%;
+  max-width: 350px;
+  margin: 0 auto;
+  padding: var(--spacing-md);
+  background-color: var(--background);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Override react-calendar default styles */
+.react-calendar {
+  width: 100%;
+  background: transparent;
+  border: none;
+  font-family: var(--font-secondary);
+}
+
+.react-calendar__navigation {
+  margin-bottom: var(--spacing-md);
+}
+
+.react-calendar__navigation button {
+  min-width: 44px;
+  background: none;
+  font-family: var(--font-primary);
+  color: var(--text-primary);
+}
+
+.react-calendar__navigation button:enabled:hover,
+.react-calendar__navigation button:enabled:focus {
+  background-color: var(--background-alt);
+  border-radius: var(--radius-sm);
+}
+
+.react-calendar__navigation button[disabled] {
+  background-color: transparent;
+  color: var(--text-secondary);
+}
+
+.react-calendar__month-view__weekdays {
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.react-calendar__month-view__weekdays__weekday {
+  padding: var(--spacing-sm) 0;
+}
+
+.react-calendar__month-view__days__day {
+  color: var(--text-primary);
+  padding: var(--spacing-sm) 0;
+}
+
+.react-calendar__month-view__days__day--weekend {
+  color: var(--accent);
+}
+
+.react-calendar__month-view__days__day--neighboringMonth {
+  color: var(--text-secondary);
+}
+
+.react-calendar__tile {
+  max-width: 100%;
+  padding: var(--spacing-sm);
+  background: none;
+  text-align: center;
+  line-height: 1.5;
+  font-size: 0.875rem;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+  background-color: var(--background-alt);
+}
+
+.react-calendar__tile--now {
+  background-color: var(--background-alt);
+  font-weight: 600;
+}
+
+.react-calendar__tile--active {
+  background-color: var(--accent) !important;
+  color: var(--text-light) !important;
+}
+
+.react-calendar__tile--active:enabled:hover,
+.react-calendar__tile--active:enabled:focus {
+  background-color: var(--accent-light) !important;
+}
+
+.highlighted-date {
+  position: relative;
+}
+
+.highlighted-date::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background-color: var(--accent);
+  border-radius: 50%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .puzzle-calendar {
+    padding: var(--spacing-sm);
+  }
+
+  .react-calendar__tile {
+    padding: var(--spacing-xs);
+    font-size: 0.75rem;
+  }
+} 

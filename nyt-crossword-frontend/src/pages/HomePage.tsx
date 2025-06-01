@@ -1,27 +1,36 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Typography, Paper, CircularProgress, Alert, Grid } from '@mui/material'; // Removed List, ListItem, ListItemText
-import { useNavigate } from 'react-router-dom'; // Removed Link as SolverList handles it
-import { fetchTodaysPuzzleData, fetchPuzzleDataByDate } from '../services/FetchData';
+import { useNavigate } from 'react-router-dom';
+import { CircularProgress, Alert } from '@mui/material';
+import { fetchTodaysPuzzleData } from '../services/FetchData';
 import PuzzleCalendar from '../components/PuzzleCalendar';
-import SolverList from '../components/SolverList'; // Import SolverList
+import SolverList from '../components/SolverList';
+import CrosswordGrid from '../components/CrosswordGrid';
+import './HomePage.css';
 
-// Define interfaces for the expected data structure (Solver might be slightly different from SolverForList)
-interface PuzzleInfo { // Renamed from Puzzle to avoid conflict if more specific Puzzle types are needed elsewhere
+// Define interfaces for the expected data structure
+interface PuzzleInfo {
   id: string;
   puzzleID: string;
   printDate: string;
-  // Add other puzzle fields as necessary
 }
 
-interface HomePageSolver { // Renamed from Solver to be specific to HomePage's raw data
+interface HomePageSolver {
   username?: string;
   solutionData: {
     userID: string;
+    board?: {
+      cells: {
+        confirmed: boolean;
+        guess: string;
+        timestamp: string;
+        blank: boolean;
+        checked: boolean;
+      }[];
+    };
     calcs?: {
       secondsSpentSolving?: number;
     };
   }
-  // Add other solver fields as necessary, e.g., username if available directly
 }
 
 interface TodaysPuzzleData {
@@ -34,9 +43,10 @@ const HomePage: React.FC = () => {
   const [data, setData] = useState<TodaysPuzzleData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
   const handleDateSelect = (date: Date) => {
     const dateString = date.toISOString().split('T')[0];
-    navigate(`/puzzle/${dateString}`); 
+    navigate(`/puzzle/${dateString}`);
   };
 
   useEffect(() => {
@@ -57,59 +67,82 @@ const HomePage: React.FC = () => {
     getTodaysPuzzle();
   }, []);
 
+  // Find the first solved solution with a board
+  const solvedPuzzle = data?.topSolutions.find(s => s.solutionData.board?.cells);
+
   if (loading) {
     return (
-      <Container sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-        <CircularProgress />
-      </Container>
+      <div className="home-page">
+        <div className="container">
+          <div className="home-page-loading">
+            <CircularProgress />
+          </div>
+        </div>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Container>
-        <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>
-      </Container>
+      <div className="home-page">
+        <div className="container">
+          <div className="home-page-error">
+            <Alert severity="error">{error}</Alert>
+          </div>
+        </div>
+      </div>
     );
   }
-
-  if (!data || !data.puzzle) {
-    return (
-      <Container>
-        {/* Still show calendar even if today's puzzle data fails, or show a specific message */}
-        <Typography variant="h5" sx={{ mt: 2, mb: 2 }}>Select a date to view a puzzle:</Typography>
-        <PuzzleCalendar onDateChange={handleDateSelect} />
-        <Alert severity="info" sx={{ mt: 2 }}>No puzzle data available for today.</Alert>
-      </Container>
-    );
-  }
-
 
   return (
-    <Container>
-      <Grid container spacing={3} sx={{ mt: 2 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Today's Puzzle - {new Date(data.puzzle.printDate).toUTCString().slice(0, 16)}
-        </Typography>
+    <div className="home-page">
+      <div className="container">
+        {/* Header Section */}
+        <div className="home-page-header">
+          <h1 className="home-page-title">NYT Crossword Leaderboard</h1>
+          <p className="home-page-subtitle">Track your progress and compete with friends</p>
+        </div>
 
-        <SolverList
-          solvers={data.topSolutions.map(s => ({
-            userID: s.solutionData.userID,
-            username: s.username,
-            solveTime: s.solutionData.calcs?.secondsSpentSolving,
-          }))}
-          title="Fastest Solvers for Today"
-          emptyMessage="No solvers yet for today's puzzle."
-        />
+        {/* Today's Puzzle Section */}
+        <div className="puzzle-section">
+          <h2 className="puzzle-section-title">
+            Today's Puzzle - {data?.puzzle ? new Date(data.puzzle.printDate).toLocaleDateString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              timeZone: 'UTC'
+            }) : 'Loading...'}
+          </h2>
 
-        <Typography variant="h6" component="h2" gutterBottom>
-          Select a Puzzle Date
-        </Typography>
-        <Paper elevation={3} sx={{ padding: 1 }}>
+          {solvedPuzzle?.solutionData.board && (
+            <div className="puzzle-grid-section">
+              <CrosswordGrid 
+                board={solvedPuzzle.solutionData.board}
+                title="Today's Crossword"
+                date={data?.puzzle.printDate}
+              />
+            </div>
+          )}
+
+          <SolverList
+            solvers={data?.topSolutions.map(s => ({
+              userID: s.solutionData.userID,
+              username: s.username,
+              solveTime: s.solutionData.calcs?.secondsSpentSolving,
+            })) || []}
+            title="Today's Fastest Solvers"
+            emptyMessage="Be the first to solve today's puzzle!"
+          />
+        </div>
+
+        {/* Calendar Section */}
+        <div className="calendar-section">
+          <h2 className="calendar-section-title">Browse Past Puzzles</h2>
           <PuzzleCalendar onDateChange={handleDateSelect} />
-        </Paper>
-      </Grid>
-    </Container>
+        </div>
+      </div>
+    </div>
   );
 };
 

@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-    Typography, Table, TableBody, TableCell, TableHead, TableRow, Paper
-} from '@mui/material';
-
+import './LeaderboardCategory.css';
 
 // Interfaces for leaderboard data
 interface LeaderboardEntry {
@@ -19,38 +16,54 @@ interface LeaderboardCategoryProps {
     valueSuffix?: string;
 }
 
-const LeaderboardCategory: React.FC<LeaderboardCategoryProps> = ({ title, subtitle, entries, valueSuffix }) => (
-    <Paper elevation={3} sx={{ p: 2 }}>
-        <Typography variant="h5" component="h2" gutterBottom align="center">
-            {title}
-        </Typography>
-        <Typography variant="subtitle1" align="center" gutterBottom sx={{ mb: 2 }}>
-            {subtitle}
-        </Typography>
-        {entries.length > 0 ? (
-            <Table size="small">
-                <TableHead>
-                    <TableRow>
-                        <TableCell>Rank</TableCell>
-                        <TableCell>User</TableCell>
-                        <TableCell align="right">{entries[0].valueLabel}</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {entries.map((entry, index) => (
-                        <TableRow key={entry.userID}>
-                            <TableCell>{index + 1}</TableCell>
-                            <TableCell>{entry.username || entry.userID}</TableCell>
-                            <TableCell align="right">
-                                {entry.value}
-                                {valueSuffix ? ` ${valueSuffix}` : ''}
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        ) : <Typography align="center">No data available.</Typography>}
-    </Paper>
-);
+const LeaderboardCategory: React.FC<LeaderboardCategoryProps> = ({ title, subtitle, entries, valueSuffix }) => {
+    const getRankClass = (rank: number) => {
+        switch (rank) {
+            case 1: return 'rank-first';
+            case 2: return 'rank-second';
+            case 3: return 'rank-third';
+            default: return '';
+        }
+    };
+
+    return (
+        <div className="leaderboard-category">
+            <div className="leaderboard-header">
+                <h2 className="leaderboard-title">{title}</h2>
+                <p className="leaderboard-subtitle">{subtitle}</p>
+            </div>
+            
+            {entries.length > 0 ? (
+                <div className="leaderboard-table-container">
+                    <table className="leaderboard-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>User</th>
+                                <th>{entries[0].valueLabel}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {entries.map((entry, index) => (
+                                <tr key={entry.userID} className={getRankClass(index + 1)}>
+                                    <td className="rank-cell">
+                                        <span className="rank-number">{index + 1}</span>
+                                    </td>
+                                    <td className="user-cell">{entry.username || entry.userID}</td>
+                                    <td className="value-cell">
+                                        {entry.value}
+                                        {valueSuffix ? ` ${valueSuffix}` : ''}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            ) : (
+                <div className="no-data">No data available.</div>
+            )}
+        </div>
+    );
+};
 
 export default LeaderboardCategory;

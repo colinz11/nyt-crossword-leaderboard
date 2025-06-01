@@ -1,0 +1,156 @@
+.solver-list {
+  background-color: var(--background);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.solver-list-title {
+  font-family: var(--font-primary);
+  font-size: 1.75rem;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-lg);
+}
+
+.solver-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.solver-list-item {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  background-color: var(--background);
+  transition: all var(--transition-fast);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  outline: none;
+}
+
+.solver-list-item:hover,
+.solver-list-item:focus {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent);
+}
+
+.solver-list-item:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+.solver-rank {
+  margin-right: var(--spacing-md);
+}
+
+.rank-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 0.875rem;
+  background-color: var(--background-alt);
+}
+
+.solver-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.solver-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: color var(--transition-fast);
+}
+
+.solver-list-item:hover .solver-name {
+  color: var(--accent);
+}
+
+.solver-time {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.solver-trend {
+  font-size: 1.25rem;
+  padding: var(--spacing-xs);
+  border-radius: var(--radius-sm);
+}
+
+.trend-up {
+  color: #22c55e;
+}
+
+.trend-down {
+  color: #ef4444;
+}
+
+.trend-neutral {
+  color: var(--text-secondary);
+}
+
+/* Rank styling */
+.rank-first .rank-number {
+  background-color: #ffd700;
+  color: var(--text-primary);
+}
+
+.rank-second .rank-number {
+  background-color: #c0c0c0;
+  color: var(--text-primary);
+}
+
+.rank-third .rank-number {
+  background-color: #cd7f32;
+  color: var(--text-primary);
+}
+
+.solver-list-empty {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: var(--spacing-xl);
+  font-style: italic;
+  background-color: var(--background);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .solver-list {
+    padding: var(--spacing-md);
+  }
+
+  .solver-list-title {
+    font-size: 1.5rem;
+    margin-bottom: var(--spacing-md);
+  }
+
+  .solver-list-item {
+    padding: var(--spacing-sm);
+  }
+
+  .rank-number {
+    width: 24px;
+    height: 24px;
+    font-size: 0.75rem;
+  }
+
+  .solver-name {
+    font-size: 0.875rem;
+  }
+
+  .solver-time {
+    font-size: 0.75rem;
+  }
+} 

@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import UserEngine from '../engine/userEngine';
 import { Solution } from '../models/solution';
 import { Puzzle } from '../models/puzzle';
+import { User } from '../models/user';
+
 const userEngine = new UserEngine(Solution, Puzzle);
 
 export const getUserStats = async (req: Request, res: Response): Promise<void> => {
@@ -14,10 +16,16 @@ export const getUserStats = async (req: Request, res: Response): Promise<void> =
         }
 
         console.log('Fetching user stats for userId:', userID);
+        
+        // Fetch user details
+        const user = await User.findOne({ userID: Number(userID) });
+        if (!user) {
+            res.status(404).json({ error: 'User not found' });
+            return;
+        }
+
         // Fetch user solutions
         await userEngine.getUserSolutions(userID);
-    
-
 
         // Calculate stats
         const averageSolveTime = userEngine.getAverageSolveTime();
@@ -32,13 +40,15 @@ export const getUserStats = async (req: Request, res: Response): Promise<void> =
         const statsByDay = daysOfWeek.map(day => {
             const stats = userEngine.getStatsByDay(day);
             return {
-            day,
-            stats,
+                day,
+                stats,
             };
         });
 
         // Return stats as JSON
         res.status(200).json({
+            userID: user.userID,
+            username: user.name,
             averageSolveTime,
             totalPuzzlesSolved,
             currentStreak,
