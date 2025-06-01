@@ -1,0 +1,137 @@
+.leaderboard-category {
+  background-color: var(--background);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.leaderboard-header {
+  text-align: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.leaderboard-title {
+  font-family: var(--font-primary);
+  font-size: 1.75rem;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.leaderboard-subtitle {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin: 0;
+}
+
+.leaderboard-table-container {
+  overflow-x: auto;
+  margin: 0 -var(--spacing-md);
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: var(--spacing-md);
+}
+
+.leaderboard-table th {
+  font-family: var(--font-secondary);
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding: var(--spacing-md);
+  text-align: left;
+  border-bottom: 2px solid var(--border);
+}
+
+.leaderboard-table td {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--border);
+}
+
+.leaderboard-table tr:last-child td {
+  border-bottom: none;
+}
+
+.rank-cell {
+  width: 80px;
+}
+
+.rank-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.user-cell {
+  font-weight: 500;
+}
+
+.value-cell {
+  text-align: right;
+  font-family: var(--font-primary);
+  font-weight: 600;
+}
+
+/* Rank styling */
+.rank-first .rank-number {
+  background-color: #ffd700;
+  color: var(--text-primary);
+}
+
+.rank-second .rank-number {
+  background-color: #c0c0c0;
+  color: var(--text-primary);
+}
+
+.rank-third .rank-number {
+  background-color: #cd7f32;
+  color: var(--text-primary);
+}
+
+/* Hover effects */
+.leaderboard-table tbody tr {
+  transition: background-color var(--transition-fast);
+}
+
+.leaderboard-table tbody tr:hover {
+  background-color: var(--background-alt);
+}
+
+/* No data message */
+.no-data {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: var(--spacing-xl);
+  font-style: italic;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .leaderboard-category {
+    padding: var(--spacing-md);
+  }
+
+  .leaderboard-title {
+    font-size: 1.5rem;
+  }
+
+  .leaderboard-subtitle {
+    font-size: 0.875rem;
+  }
+
+  .leaderboard-table th,
+  .leaderboard-table td {
+    padding: var(--spacing-sm);
+  }
+
+  .rank-cell {
+    width: 60px;
+  }
+} 

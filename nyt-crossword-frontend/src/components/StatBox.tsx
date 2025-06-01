@@ -1,37 +1,34 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import './StatBox.css';
 
 interface StatBoxProps {
   value: number | string; // The number or percentage to display
   label: string; // The label for the stat
+  trend?: 'up' | 'down' | 'neutral';
+  icon?: React.ReactNode;
 }
 
-const StatBox: React.FC<StatBoxProps> = ({ value, label }) => {
+const StatBox: React.FC<StatBoxProps> = ({ value, label, trend, icon }) => {
+  const getTrendClass = () => {
+    if (!trend) return '';
+    return `trend-${trend}`;
+  };
+
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 2,
-        border: '1px solid #ddd',
-        borderRadius: '8px',
-        width: '150px',
-        height: '100px',
-        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-        backgroundColor: '#fff',
-      }}
-    >
-      {/* Value */}
-      <Typography variant="h4" sx={{ fontWeight: 'bold', marginBottom: 1 }}>
-        {value}
-      </Typography>
-      {/* Label */}
-      <Typography variant="body2" color="textSecondary">
-        {label}
-      </Typography>
-    </Box>
+    <div className={`stat-box ${getTrendClass()}`}>
+      <div className="stat-box-content">
+        {icon && <div className="stat-box-icon">{icon}</div>}
+        <div className="stat-box-value">{value}</div>
+        <div className="stat-box-label">{label}</div>
+      </div>
+      {trend && (
+        <div className="stat-box-trend">
+          {trend === 'up' && '↑'}
+          {trend === 'down' && '↓'}
+          {trend === 'neutral' && '→'}
+        </div>
+      )}
+    </div>
   );
 };
 

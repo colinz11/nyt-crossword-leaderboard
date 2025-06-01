@@ -1,0 +1,92 @@
+.stat-box {
+  background-color: var(--background);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-lg);
+  min-width: 180px;
+  transition: all var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-box:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.stat-box-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.stat-box-icon {
+  color: var(--accent);
+  font-size: 1.5rem;
+  margin-bottom: var(--spacing-xs);
+}
+
+.stat-box-value {
+  font-family: var(--font-primary);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.stat-box-label {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.stat-box-trend {
+  position: absolute;
+  top: var(--spacing-xs);
+  right: var(--spacing-xs);
+  font-size: 1.25rem;
+  padding: var(--spacing-xs);
+  border-radius: var(--radius-sm);
+}
+
+.trend-up .stat-box-trend {
+  color: #22c55e;
+}
+
+.trend-down .stat-box-trend {
+  color: #ef4444;
+}
+
+.trend-neutral .stat-box-trend {
+  color: var(--text-secondary);
+}
+
+/* Hover animations */
+.stat-box-trend {
+  transition: transform var(--transition-fast);
+}
+
+.trend-up:hover .stat-box-trend {
+  transform: translateY(-2px);
+}
+
+.trend-down:hover .stat-box-trend {
+  transform: translateY(2px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .stat-box {
+    min-width: 140px;
+    padding: var(--spacing-md);
+  }
+
+  .stat-box-value {
+    font-size: 1.5rem;
+  }
+
+  .stat-box-label {
+    font-size: 0.75rem;
+  }
+} 

@@ -1,0 +1,68 @@
+.weekly-chart {
+  background-color: var(--background);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.chart-tooltip {
+  background-color: var(--background);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-md);
+  border: 1px solid var(--border);
+}
+
+.chart-tooltip h4 {
+  font-family: var(--font-primary);
+  font-size: 1rem;
+  margin-bottom: var(--spacing-sm);
+  color: var(--text-primary);
+}
+
+.tooltip-item {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--spacing-xs);
+}
+
+.tooltip-item:last-child {
+  margin-bottom: 0;
+}
+
+.tooltip-label {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.tooltip-value {
+  font-family: var(--font-secondary);
+  color: var(--text-secondary);
+}
+
+.tooltip-date {
+  margin-left: var(--spacing-xs);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .weekly-chart {
+    padding: var(--spacing-md);
+  }
+
+  .chart-tooltip {
+    padding: var(--spacing-sm);
+  }
+
+  .chart-tooltip h4 {
+    font-size: 0.875rem;
+  }
+
+  .tooltip-value,
+  .tooltip-date {
+    font-size: 0.75rem;
+  }
+} 

@@ -1,12 +1,14 @@
 import React from 'react';
-import { List, ListItem, ListItemText, Paper, Typography } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import './SolverList.css';
 
 export interface SolverForList {
   userID: string;
-  username?: string; // Optional, if available
-  solveTime?: number; // Seconds
-  displayValue?: string; // If time is pre-formatted or it's another metric
+  username?: string;
+  solveTime?: number;
+  displayValue?: string;
+  rank?: number;
+  trend?: 'up' | 'down' | 'neutral';
 }
 
 interface SolverListProps {
@@ -20,35 +22,60 @@ const SolverList: React.FC<SolverListProps> = ({
   title = "Fastest Solvers",
   emptyMessage = "No solvers to display."
 }) => {
+  const getRankClass = (rank: number) => {
+    switch (rank) {
+      case 1: return 'rank-first';
+      case 2: return 'rank-second';
+      case 3: return 'rank-third';
+      default: return '';
+    }
+  };
+
+  const getTrendIcon = (trend?: 'up' | 'down' | 'neutral') => {
+    switch (trend) {
+      case 'up': return '↑';
+      case 'down': return '↓';
+      case 'neutral': return '→';
+      default: return null;
+    }
+  };
+
   if (!solvers || solvers.length === 0) {
-    return <Typography sx={{mt: 2, mb: 2}}>{emptyMessage}</Typography>;
+    return <div className="solver-list-empty">{emptyMessage}</div>;
   }
 
   return (
-    <>
+    <div className="solver-list">
       {title && (
-        <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 3 }}>
-          {title}
-        </Typography>
+        <h2 className="solver-list-title">{title}</h2>
       )}
-      <List component={Paper} elevation={2} sx={{ mb: 3 }}>
+      <div className="solver-list-container">
         {solvers.map((solver, index) => (
-          <ListItem key={solver.userID || index} divider={index < solvers.length - 1}>
-            <ListItemText
-              primary={
-                <RouterLink to={`/user/${solver.userID}`}>
-                  {solver.username || `User ${solver.userID}`}
-                </RouterLink>
-              }
-              secondary={
-                solver.displayValue ? solver.displayValue :
-                solver.solveTime !== undefined ? `Time: ${solver.solveTime.toFixed(2)} seconds` : ''
-              }
-            />
-          </ListItem>
+          <div 
+            key={solver.userID || index} 
+            className={`solver-list-item ${getRankClass(solver.rank || index + 1)}`}
+          >
+            <div className="solver-rank">
+              <span className="rank-number">{solver.rank || index + 1}</span>
+            </div>
+            <div className="solver-info">
+              <Link to={`/user/${solver.userID}`} className="solver-name">
+                {solver.username || `User ${solver.userID}`}
+              </Link>
+              <div className="solver-time">
+                {solver.displayValue ? solver.displayValue :
+                 solver.solveTime !== undefined ? `${solver.solveTime.toFixed(2)} seconds` : ''}
+              </div>
+            </div>
+            {solver.trend && (
+              <div className={`solver-trend trend-${solver.trend}`}>
+                {getTrendIcon(solver.trend)}
+              </div>
+            )}
+          </div>
         ))}
-      </List>
-    </>
+      </div>
+    </div>
   );
 };
 
