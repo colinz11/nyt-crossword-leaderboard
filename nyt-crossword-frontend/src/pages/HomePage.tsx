@@ -14,10 +14,13 @@ interface PuzzleInfo { // Renamed from Puzzle to avoid conflict if more specific
 }
 
 interface HomePageSolver { // Renamed from Solver to be specific to HomePage's raw data
-  userID: string;
-  calcs?: {
-    secondsSpentSolving?: number;
-  };
+  username?: string;
+  solutionData: {
+    userID: string;
+    calcs?: {
+      secondsSpentSolving?: number;
+    };
+  }
   // Add other solver fields as necessary, e.g., username if available directly
 }
 
@@ -33,17 +36,7 @@ const HomePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const handleDateSelect = (date: Date) => {
     const dateString = date.toISOString().split('T')[0];
-    fetchPuzzleDataByDate(dateString)
-      .then(puzzleData => {
-        if (puzzleData && puzzleData.puzzleID) {
-          navigate(`/puzzle/${puzzleData.puzzleID}`);
-        } else {
-          alert('No puzzle found for this date. dateString: ' + dateString);
-        }
-      })
-      .catch(() => {
-        alert('Failed to fetch puzzle for this date.');
-      });
+    navigate(`/puzzle/${dateString}`); 
   };
 
   useEffect(() => {
@@ -86,7 +79,7 @@ const HomePage: React.FC = () => {
         {/* Still show calendar even if today's puzzle data fails, or show a specific message */}
         <Typography variant="h5" sx={{ mt: 2, mb: 2 }}>Select a date to view a puzzle:</Typography>
         <PuzzleCalendar onDateChange={handleDateSelect} />
-        <Alert severity="info" sx={{mt:2}}>No puzzle data available for today.</Alert>
+        <Alert severity="info" sx={{ mt: 2 }}>No puzzle data available for today.</Alert>
       </Container>
     );
   }
@@ -95,25 +88,26 @@ const HomePage: React.FC = () => {
   return (
     <Container>
       <Grid container spacing={3} sx={{ mt: 2 }}>
-          <Typography variant="h4" component="h1" gutterBottom>
-            Today's Puzzle - {new Date(data.puzzle.printDate).toLocaleDateString()}
-          </Typography>
+        <Typography variant="h4" component="h1" gutterBottom>
+          Today's Puzzle - {new Date(data.puzzle.printDate).toUTCString().slice(0, 16)}
+        </Typography>
 
-          <SolverList
-            solvers={data.topSolutions.map(s => ({
-              userID: s.userID,
-              solveTime: s.calcs?.secondsSpentSolving,
-            }))}
-            title="Fastest Solvers for Today"
-            emptyMessage="No solvers yet for today's puzzle."
-          />
-  
-          <Typography variant="h6" component="h2" gutterBottom>
-            Select a Puzzle Date
-          </Typography>
-          <Paper elevation={3} sx={{ padding: 1 }}>
-            <PuzzleCalendar onDateChange={handleDateSelect} />
-          </Paper>
+        <SolverList
+          solvers={data.topSolutions.map(s => ({
+            userID: s.solutionData.userID,
+            username: s.username,
+            solveTime: s.solutionData.calcs?.secondsSpentSolving,
+          }))}
+          title="Fastest Solvers for Today"
+          emptyMessage="No solvers yet for today's puzzle."
+        />
+
+        <Typography variant="h6" component="h2" gutterBottom>
+          Select a Puzzle Date
+        </Typography>
+        <Paper elevation={3} sx={{ padding: 1 }}>
+          <PuzzleCalendar onDateChange={handleDateSelect} />
+        </Paper>
       </Grid>
     </Container>
   );

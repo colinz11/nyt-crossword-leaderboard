@@ -14,9 +14,8 @@ const App: React.FC = () => {
       <Container sx={{ mt: 2 }}>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/puzzle" element={<PuzzlePage />} />
           <Route path="/user/:userId" element={<UserPage />} />
-          <Route path="/puzzle/:puzzleId" element={<PuzzlePage />} />
+          <Route path="/puzzle/:dateString" element={<PuzzlePage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />
         </Routes>
       </Container>
