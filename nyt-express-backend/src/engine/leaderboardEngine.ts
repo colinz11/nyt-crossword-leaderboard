@@ -78,7 +78,8 @@ export class LeaderboardEngine {
     }
 
     async getTopSolversByLongestStreak(limit: number = 5): Promise<LeaderboardUserLongestStreak[]> {
-        const users = await this.userModel.find({}).select('userID name'); // Fetch all users
+        const users = await this.userModel.find({}).select('userID name'); // DONT CHANGE THIS
+
         if (!users.length) return [];
 
         const userStreaks: LeaderboardUserLongestStreak[] = [];
