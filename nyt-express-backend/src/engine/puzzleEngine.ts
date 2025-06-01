@@ -36,7 +36,6 @@ class PuzzleEngine {
       }
 
       const solutions = await this.solutionModel.find({ puzzleID: puzzleId });
-      // Assuming 'calcs.secondsSpentSolving' exists and indicates a solved puzzle
       const solvedSolutions = solutions.filter(solution => solution.calcs && solution.calcs.solved && solution.calcs.secondsSpentSolving > 0);
       const sortedSolutions = solvedSolutions.sort((a, b) => (a.calcs?.secondsSpentSolving || 0) - (b.calcs?.secondsSpentSolving || 0));
       const topSolutions = sortedSolutions.slice(0, 5);
@@ -85,15 +84,6 @@ class PuzzleEngine {
       return latestPuzzle;
     }
 
-    async getTopSolversForPuzzle(puzzleId: string, limit: number): Promise<SolutionDocument[]> {
-      // Find solutions for the given puzzleId
-      const solutions = await this.solutionModel.find({ puzzleID: puzzleId });
-      // Filter for solved puzzles and sort by time
-      const solvedSolutions = solutions.filter(solution => solution.calcs && solution.calcs.solved && solution.calcs.secondsSpentSolving > 0);
-      const sortedSolutions = solvedSolutions.sort((a, b) => (a.calcs?.secondsSpentSolving || 0) - (b.calcs?.secondsSpentSolving || 0));
-      // Return the top 'limit' solutions
-      return sortedSolutions.slice(0, limit);
-    }
 
     async getPuzzleByPrintDate(dateString: string): Promise<PuzzleDocument | null> {
       // The dateString is expected to be in 'YYYY-MM-DD' format.
@@ -104,7 +94,6 @@ class PuzzleEngine {
 
       const endDate = new Date(dateString);
       endDate.setUTCHours(23, 59, 59, 999); // End of the day in UTC
-
       const puzzle = await this.puzzleModel.findOne({
         printDate: {
           $gte: startDate,

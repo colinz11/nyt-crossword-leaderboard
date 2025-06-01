@@ -3,7 +3,7 @@ import { Container, Typography, Paper, CircularProgress, Alert, Grid } from '@mu
 import { useNavigate } from 'react-router-dom'; // Removed Link as SolverList handles it
 import { fetchTodaysPuzzleData } from '../services/FetchData';
 import PuzzleCalendar from '../components/PuzzleCalendar';
-import SolverList, { SolverForList } from '../components/SolverList'; // Import SolverList
+import SolverList from '../components/SolverList'; // Import SolverList
 
 // Define interfaces for the expected data structure (Solver might be slightly different from SolverForList)
 interface PuzzleInfo { // Renamed from Puzzle to avoid conflict if more specific Puzzle types are needed elsewhere
@@ -23,7 +23,7 @@ interface HomePageSolver { // Renamed from Solver to be specific to HomePage's r
 
 interface TodaysPuzzleData {
   puzzle: PuzzleInfo;
-  topSolvers: HomePageSolver[];
+  topSolutions: HomePageSolver[];
 }
 
 const HomePage: React.FC = () => {
@@ -31,6 +31,10 @@ const HomePage: React.FC = () => {
   const [data, setData] = useState<TodaysPuzzleData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const handleDateSelect = (date: Date) => {
+    const dateString = date.toISOString().split('T')[0]; // Format date as YYYY-MM-DD
+    navigate(`/puzzle/${dateString}`);
+  };
 
   useEffect(() => {
     const getTodaysPuzzle = async () => {
@@ -77,15 +81,10 @@ const HomePage: React.FC = () => {
     );
   }
 
-  const handleDateSelect = (date: Date) => {
-    const dateString = date.toISOString().split('T')[0]; // Format date as YYYY-MM-DD
-    navigate(`/puzzle/${dateString}`);
-  };
 
   return (
     <Container>
       <Grid container spacing={3} sx={{ mt: 2 }}>
-        <Grid item xs={12} md={8}>
           <Typography variant="h4" component="h1" gutterBottom>
             Today's Puzzle - {new Date(data.puzzle.printDate).toLocaleDateString()}
           </Typography>
@@ -97,22 +96,20 @@ const HomePage: React.FC = () => {
           </Paper>
 
           <SolverList
-            solvers={data.topSolvers.map(s => ({
+            solvers={data.topSolutions.map(s => ({
               userID: s.userID,
               solveTime: s.calcs?.secondsSpentSolving,
             }))}
             title="Fastest Solvers for Today"
             emptyMessage="No solvers yet for today's puzzle."
           />
-        </Grid>
-        <Grid item xs={12} md={4}>
+  
           <Typography variant="h6" component="h2" gutterBottom>
             Select a Puzzle Date
           </Typography>
           <Paper elevation={3} sx={{ padding: 1 }}>
             <PuzzleCalendar onDateChange={handleDateSelect} />
           </Paper>
-        </Grid>
       </Grid>
     </Container>
   );

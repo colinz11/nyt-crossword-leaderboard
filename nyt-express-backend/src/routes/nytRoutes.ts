@@ -18,8 +18,9 @@ router.post('/nyt/puzzles', nytController.fetchAndSavePuzzlesByDateRange.bind(ny
 router.post('/nyt/solutions', nytController.fetchAndSaveSolutionsForUser.bind(nytController));
 router.post('/nyt/refresh-all', nytController.refreshAll.bind(nytController));
 router.post('/nyt/save-user', nytController.saveUser.bind(nytController));
+
 router.get('/users/stats/:userID', getUserStats);
-router.get('/puzzles/:puzzleId/solutions', getPuzzleSolutions);
+
 
 // Leaderboard Routes
 router.get('/leaderboard/average-time', getLeaderboardByAverageTime);
@@ -27,7 +28,8 @@ router.get('/leaderboard/puzzles-solved', getLeaderboardByPuzzlesSolved);
 router.get('/leaderboard/longest-streak', getLeaderboardByLongestStreak);
 
 // Puzzle Routes
-router.get('/api/puzzles/today', getTodaysPuzzleDetails);
-router.get('/api/puzzles/by-date/:date', getPuzzleByDate);
+router.get('/puzzles/:puzzleId/solutions', getPuzzleSolutions);
+router.get('/puzzles/today', getTodaysPuzzleDetails);
+router.get('/puzzles/by-date/:date', getPuzzleByDate);
 
 export default router;

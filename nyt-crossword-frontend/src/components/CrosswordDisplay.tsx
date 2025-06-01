@@ -1,6 +1,8 @@
 import React from 'react';
 import { Box, Grid, Paper, Typography } from '@mui/material'; // SvgIcon removed as it's not used
 import ClueDisplay from './ClueDisplay'; // Import ClueDisplay
+import { Button } from '@mui/material'; // Added Button
+import { useEffect, useState } from 'react'; // Added hooks
 
 // --- Data Structures ---
 interface CellCoordinate {
@@ -52,8 +54,6 @@ const CELL_SIZE = 30; // px
 const GRID_STROKE_COLOR = '#333';
 const CELL_BG_COLOR = '#fff';
 const BLACK_CELL_BG_COLOR = '#333';
-import { Button } from '@mui/material'; // Added Button
-import { useEffect, useState, useCallback } from 'react'; // Added hooks
 
 const CELL_NUMBER_COLOR = '#555';
 
@@ -162,7 +162,7 @@ const CrosswordDisplay: React.FC<CrosswordDisplayProps> = ({ boardData, solution
     <Grid container spacing={2}>
       {/* Replay Controls - Basic */}
       {preparedSolutions.length > 0 && (
-        <Grid item xs={12}>
+        <Grid>
           <Paper sx={{p:1, mb:1}}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Button onClick={handlePlayPause} variant="contained" size="small">
@@ -184,7 +184,7 @@ const CrosswordDisplay: React.FC<CrosswordDisplayProps> = ({ boardData, solution
       )}
 
       {/* Crossword Grid */}
-      <Grid item xs={12} md={7}>
+      <Grid>
         <Paper elevation={3} sx={{ p: 2, overflow: 'auto' }}>
           <Typography variant="h6" gutterBottom>Crossword</Typography>
           <svg width={totalWidth} height={totalHeight} viewBox={`0 0 ${totalWidth} ${totalHeight}`}>
@@ -236,7 +236,7 @@ const CrosswordDisplay: React.FC<CrosswordDisplayProps> = ({ boardData, solution
       </Grid>
 
       {/* Clues */}
-      <Grid item xs={12} md={5}>
+      <Grid>
         <Paper elevation={3} sx={{ p: 2, maxHeight: totalHeight > 0 ? totalHeight : '600px', overflowY: 'auto' }}>
           <ClueDisplay clues={clues} />
         </Paper>
