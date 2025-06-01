@@ -4,6 +4,7 @@ import { Puzzle } from '../models/puzzle';
 import { Solution } from '../models/solution';
 import { User } from '../models/user';
 import { getUserStats } from '../controllers/userController';
+import { verifyAndCreateUser } from '../controllers/authController';
 import { getPuzzleSolutions, getTodaysPuzzleDetails, getPuzzleByDate } from '../controllers/puzzleController';
 import {
     getLeaderboardByAverageTime,
@@ -19,8 +20,9 @@ router.post('/nyt/solutions', nytController.fetchAndSaveSolutionsForUser.bind(ny
 router.post('/nyt/refresh-all', nytController.refreshAll.bind(nytController));
 router.post('/nyt/save-user', nytController.saveUser.bind(nytController));
 
+// User Routes
 router.get('/users/stats/:userID', getUserStats);
-
+router.post('/users/verify', verifyAndCreateUser);
 
 // Leaderboard Routes
 router.get('/leaderboard/average-time', getLeaderboardByAverageTime);
