@@ -2,11 +2,12 @@
   "name": "nyt-express-backend",
   "version": "1.0.0",
   "description": "A backend service to query data from the New York Times and store it in a database.",
-  "main": "src/app.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "start": "npm run build && node dist/app.js",
-    "dev": "npm run build && nodemon dist/app.js"
+    "start": "node dist/index.js",
+    "dev": "nodemon src/index.ts",
+    "vercel-build": "tsc"
   },
   "dependencies": {
     "@types/express": "^5.0.1",
@@ -24,8 +25,12 @@
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
-    "nodemon": "^2.0.7"
+    "nodemon": "^2.0.7",
+    "ts-node": "^10.9.2"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }
