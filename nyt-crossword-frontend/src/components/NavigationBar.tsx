@@ -9,9 +9,6 @@ const NavigationBar: React.FC = () => {
           <Link to="/">Home</Link>
         </li>
         <li>
-          <Link to="/puzzle">Puzzle</Link>
-        </li>
-        <li>
           <Link to="/leaderboard">Leaderboard</Link>
         </li>
       </ul>
