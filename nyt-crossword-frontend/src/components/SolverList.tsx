@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './SolverList.css';
 
 export interface SolverForList {
@@ -22,6 +22,8 @@ const SolverList: React.FC<SolverListProps> = ({
   title = "Fastest Solvers",
   emptyMessage = "No solvers to display."
 }) => {
+  const navigate = useNavigate();
+
   const getRankClass = (rank: number) => {
     switch (rank) {
       case 1: return 'rank-first';
@@ -40,6 +42,10 @@ const SolverList: React.FC<SolverListProps> = ({
     }
   };
 
+  const handleSolverClick = (userID: string) => {
+    navigate(`/user/${userID}`);
+  };
+
   if (!solvers || solvers.length === 0) {
     return <div className="solver-list-empty">{emptyMessage}</div>;
   }
@@ -54,14 +60,18 @@ const SolverList: React.FC<SolverListProps> = ({
           <div 
             key={solver.userID || index} 
             className={`solver-list-item ${getRankClass(solver.rank || index + 1)}`}
+            onClick={() => handleSolverClick(solver.userID)}
+            role="button"
+            tabIndex={0}
+            title={`View ${solver.username || `User ${solver.userID}`}'s stats`}
           >
             <div className="solver-rank">
               <span className="rank-number">{solver.rank || index + 1}</span>
             </div>
             <div className="solver-info">
-              <Link to={`/user/${solver.userID}`} className="solver-name">
+              <span className="solver-name">
                 {solver.username || `User ${solver.userID}`}
-              </Link>
+              </span>
               <div className="solver-time">
                 {solver.displayValue ? solver.displayValue :
                  solver.solveTime !== undefined ? `${solver.solveTime.toFixed(2)} seconds` : ''}

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Typography, Container } from '@mui/material';
 import SummaryStatistics from '../components/SummaryStatistics';
 import WeeklyBarChart from '../components/WeeklyBarChart';
 import { fetchUserStats } from '../services/FetchData';

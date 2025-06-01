@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom'; // Link as RouterLink removed, SolverList handles it
-import { Typography, Container, CircularProgress, Alert } from '@mui/material'; // List, ListItem, ListItemText removed
+import { CircularProgress, Alert } from '@mui/material'; // List, ListItem, ListItemText removed
 import { fetchPuzzleDataByDate } from '../services/FetchData'; // Import services
 import SolverList from '../components/SolverList'; // Import SolverList
-import { CrosswordCell } from '../model/Board';
+import CrosswordGrid from '../components/CrosswordGrid';
+import './PuzzlePage.css';
 
 
 // Interface for Puzzle data (matching backend response)
@@ -16,9 +17,12 @@ interface PuzzleApiResponse { // Renamed to avoid conflict with internal Puzzle 
   title?: string;
 }
 
-interface NytPuzzleBody {
-  size: { rows: number; cols: number };
-  grid: CrosswordCell[]; // Flat array, length = rows * cols
+interface Cell {
+  confirmed?: boolean;
+  guess?: string;
+  timestamp?: string;
+  blank?: boolean;
+  checked?: boolean;
 }
 
 // Interface for Solver data (matching backend response)
@@ -27,8 +31,8 @@ interface SolverApiResponse {
   solutionData: {
     userID: string;
     board?: {
-      cells: CrosswordCell[]; // Optional, if the backend provides the board state
-    }
+      cells: Cell[];
+    };
     calcs?: {
       secondsSpentSolving?: number;
     };
@@ -95,62 +99,95 @@ const PuzzlePage: React.FC = () => {
     loadPuzzleData();
   }, [dateString, navigate]);
 
+  // Find the first solved solution with a board
+  const solvedPuzzle = pageData?.topSolutions.find(s => s.solutionData.board?.cells);
+
   if (loading) {
     return (
-      <Container sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-        <CircularProgress />
-      </Container>
+      <div className="puzzle-page">
+        <div className="container">
+          <div className="puzzle-page-loading">
+            <CircularProgress />
+          </div>
+        </div>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Container>
-        <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>
-      </Container>
+      <div className="puzzle-page">
+        <div className="container">
+          <div className="puzzle-page-error">
+            <Alert severity="error">{error}</Alert>
+          </div>
+        </div>
+      </div>
     );
   }
 
   if (!pageData || !pageData.puzzle) {
     return (
-      <Container>
-        <Typography variant="h5" sx={{ mt: 2 }}>
-          {dateString ? `Puzzle data or structure not available for ${new Date(dateString + 'T00:00:00Z').toLocaleDateString()}.` : 'Puzzle data or structure not available.'}
-        </Typography>
-        {/* It might be that pageData.puzzle is available but transformedBoardData is not if parsing failed */}
-        {pageData && pageData.puzzle && (
-          <Alert severity="warning" sx={{ mt: 1 }}>Could not parse puzzle structure from API data.</Alert>
-        )}
-      </Container>
+      <div className="puzzle-page">
+        <div className="container">
+          <div className="puzzle-page-error">
+            <Alert severity="warning">
+              {dateString ? `No puzzle data available for ${new Date(dateString + 'T00:00:00Z').toLocaleDateString()}.` : 'No puzzle data available.'}
+            </Alert>
+          </div>
+        </div>
+      </div>
     );
   }
 
   const { puzzle, topSolutions } = pageData;
   const formattedPrintDate = new Date(puzzle.printDate).toLocaleDateString('en-US', {
-    year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC',
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'UTC'
   });
 
   return (
-    <Container maxWidth="lg"> {/* Using maxWidth="lg" for better layout of grid and clues */}
-      <Typography variant="h4" component="h1" gutterBottom sx={{ mt: 2 }}>
-        Crossword for {formattedPrintDate}
-      </Typography>
-      <Typography variant="subtitle1" gutterBottom>
-        Puzzle ID: {puzzle.puzzleID} {puzzle.title && `- "${puzzle.title}"`}
-      </Typography>
-      {puzzle.author && <Typography variant="body2" gutterBottom>Author: {puzzle.author}</Typography>}
-      {puzzle.editor && <Typography variant="body2" gutterBottom>Editor: {puzzle.editor}</Typography>}
+    <div className="puzzle-page">
+      <div className="container">
+        <div className="puzzle-page-header">
+          <h1 className="puzzle-page-title">
+            Crossword for {formattedPrintDate}
+          </h1>
+          {puzzle.title && (
+            <p className="puzzle-page-subtitle">"{puzzle.title}"</p>
+          )}
+          <div className="puzzle-page-meta">
+            {puzzle.author && <span>By {puzzle.author}</span>}
+            {puzzle.editor && <span>Edited by {puzzle.editor}</span>}
+          </div>
+        </div>
 
-      <SolverList
-        solvers={topSolutions.map(s => ({
-          userID: s.solutionData.userID,
-          username: s.username,
-          solveTime: s.solutionData.calcs?.secondsSpentSolving,
-        }))}
-        title="Fastest Solvers for This Puzzle"
-        emptyMessage="No solvers recorded for this puzzle yet, or data is unavailable."
-      />
-    </Container>
+        {solvedPuzzle?.solutionData.board && (
+          <div className="puzzle-grid-section">
+            <CrosswordGrid 
+              board={solvedPuzzle.solutionData.board}
+              title="Completed Puzzle"
+              date={puzzle.printDate}
+            />
+          </div>
+        )}
+
+        <div className="solvers-section">
+          <SolverList
+            solvers={topSolutions.map(s => ({
+              userID: s.solutionData.userID,
+              username: s.username,
+              solveTime: s.solutionData.calcs?.secondsSpentSolving,
+            }))}
+            title="Fastest Solvers"
+            emptyMessage="No solvers recorded for this puzzle yet."
+          />
+        </div>
+      </div>
+    </div>
   );
 };
 

@@ -1,0 +1,114 @@
+.home-page {
+  padding: var(--spacing-xl) 0;
+  min-height: 100vh;
+  background-color: var(--background-alt);
+}
+
+.home-page .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+.home-page-header {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.home-page-title {
+  font-family: var(--font-primary);
+  font-size: 2.5rem;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+.home-page-subtitle {
+  font-family: var(--font-primary);
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-xl);
+}
+
+.puzzle-section {
+  background-color: var(--background);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.puzzle-section-title {
+  font-family: var(--font-primary);
+  font-size: 1.75rem;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-lg);
+}
+
+.puzzle-grid-section {
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-md);
+  background-color: var(--background-alt);
+  border-radius: var(--radius-lg);
+}
+
+.calendar-section {
+  background-color: var(--background);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-lg);
+  margin-top: var(--spacing-xl);
+}
+
+.calendar-section-title {
+  font-family: var(--font-primary);
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-lg);
+}
+
+.home-page-loading {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: var(--spacing-xl);
+  font-style: italic;
+}
+
+.home-page-error {
+  text-align: center;
+  color: var(--accent);
+  padding: var(--spacing-xl);
+  background-color: var(--background);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin: var(--spacing-xl) auto;
+  max-width: 600px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .home-page {
+    padding: var(--spacing-lg) 0;
+  }
+
+  .home-page-title {
+    font-size: 2rem;
+  }
+
+  .puzzle-section,
+  .calendar-section {
+    padding: var(--spacing-md);
+  }
+
+  .puzzle-section-title {
+    font-size: 1.5rem;
+  }
+
+  .calendar-section-title {
+    font-size: 1.25rem;
+  }
+
+  .puzzle-grid-section {
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+  }
+} 

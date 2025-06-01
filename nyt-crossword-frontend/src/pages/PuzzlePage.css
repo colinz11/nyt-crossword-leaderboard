@@ -1,0 +1,108 @@
+.puzzle-page {
+  padding: var(--spacing-xl) 0;
+  min-height: 100vh;
+  background-color: var(--background-alt);
+}
+
+.puzzle-page .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+.puzzle-page-header {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.puzzle-page-title {
+  font-family: var(--font-primary);
+  font-size: 2.5rem;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+.puzzle-page-subtitle {
+  font-family: var(--font-primary);
+  font-size: 1.5rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-md);
+  font-style: italic;
+}
+
+.puzzle-page-meta {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.puzzle-page-meta span:not(:last-child)::after {
+  content: "•";
+  margin-left: var(--spacing-md);
+}
+
+.puzzle-grid-section {
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-md);
+  background-color: var(--background);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.race-section {
+  margin-bottom: var(--spacing-xl);
+}
+
+.solvers-section {
+  margin-bottom: var(--spacing-xl);
+}
+
+.puzzle-page-loading {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: var(--spacing-xl);
+  font-style: italic;
+}
+
+.puzzle-page-error {
+  text-align: center;
+  color: var(--accent);
+  padding: var(--spacing-xl);
+  background-color: var(--background);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin: var(--spacing-xl) auto;
+  max-width: 600px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .puzzle-page {
+    padding: var(--spacing-lg) 0;
+  }
+
+  .puzzle-page-title {
+    font-size: 2rem;
+  }
+
+  .puzzle-page-subtitle {
+    font-size: 1.25rem;
+  }
+
+  .puzzle-grid-section,
+  .race-section {
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .puzzle-page-meta {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .puzzle-page-meta span:not(:last-child)::after {
+    display: none;
+  }
+} 
