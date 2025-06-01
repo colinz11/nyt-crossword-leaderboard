@@ -1,0 +1,77 @@
+.user-page {
+  padding: var(--spacing-xl) 0;
+  min-height: 100vh;
+  background-color: var(--background-alt);
+}
+
+.user-page .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+.user-page-header {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.user-page-title {
+  font-family: var(--font-primary);
+  font-size: 2.5rem;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+.weekly-chart-section {
+  margin-top: var(--spacing-xxl);
+  background-color: var(--background);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-lg);
+}
+
+.weekly-chart-title {
+  font-family: var(--font-primary);
+  font-size: 1.75rem;
+  color: var(--text-primary);
+  text-align: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.user-page-error {
+  text-align: center;
+  color: var(--accent);
+  padding: var(--spacing-xl);
+  background-color: var(--background);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin: var(--spacing-xl) auto;
+  max-width: 600px;
+}
+
+.user-page-loading {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: var(--spacing-xl);
+  font-style: italic;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .user-page {
+    padding: var(--spacing-lg) 0;
+  }
+
+  .user-page-title {
+    font-size: 2rem;
+  }
+
+  .weekly-chart-section {
+    margin-top: var(--spacing-xl);
+    padding: var(--spacing-md);
+  }
+
+  .weekly-chart-title {
+    font-size: 1.5rem;
+  }
+} 
