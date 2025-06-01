@@ -9,7 +9,7 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:808
  */
 export const fetchUserStats = async (userID: string) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/api/users/stats/${userID}`);
+        const response = await axios.get(`${API_BASE_URL}api/users/stats/${userID}`);
         return response.data; // Return the stats data from the response
     } catch (error) {
         console.error(`Error fetching user stats for userID ${userID}:`, error);
