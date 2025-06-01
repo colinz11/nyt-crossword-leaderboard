@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom'; // Link as RouterLink removed, SolverList handles it
-import { Typography, Container, Paper, Box, CircularProgress, Alert } from '@mui/material'; // List, ListItem, ListItemText removed
+import { Typography, Container, Box, CircularProgress, Alert } from '@mui/material'; // List, ListItem, ListItemText removed
 import { fetchPuzzleDataByDate, fetchTodaysPuzzleData } from '../services/FetchData'; // Import services
-import CrosswordDisplay, { CrosswordBoardData, SolutionForDisplay, CrosswordCell, CrosswordClues } from '../components/CrosswordDisplay'; // Import the new component and types
+import CrosswordDisplay, { CrosswordBoardData, SolutionForDisplay, CrosswordCell } from '../components/CrosswordDisplay'; // Import the new component and types
 import SolverList from '../components/SolverList'; // Import SolverList
 
 // Interface for Puzzle data (matching backend response)
@@ -28,21 +28,9 @@ interface NytGridCell {
   // Other NYT specific fields might exist
 }
 
-interface NytClue {
-  number: number;
-  text: string;
-  relatedAnswerCells?: number[]; // Flat indices of cells forming this clue's answer
-  // direction is implicit by being in 'across' or 'down' list
-}
-
 interface NytPuzzleBody {
   size: { rows: number; cols: number };
   grid: NytGridCell[]; // Flat array, length = rows * cols
-  clues: {
-    across: NytClue[];
-    down: NytClue[];
-  };
-  // Other metadata like date, title, author, editor might be here
 }
 
 // Interface for Solver data (matching backend response)
@@ -58,12 +46,12 @@ interface SolverApiResponse { // Renamed
 // Combined interface for the page's data state
 interface PuzzlePageData {
   puzzle: PuzzleApiResponse;
-  topSolvers: SolverApiResponse[];
+  topSolutions: SolverApiResponse[];
 }
 
 // Helper function to transform API puzzle data to CrosswordBoardData
 const transformNytBodyToBoardData = (nytBody: NytPuzzleBody | undefined, puzzleID: string): CrosswordBoardData => {
-  if (!nytBody || !nytBody.grid || !nytBody.clues || !nytBody.size || nytBody.grid.length === 0) {
+  if (!nytBody || !nytBody.grid || !nytBody.size || nytBody.grid.length === 0) {
     console.warn(`NYT body for puzzle ${puzzleID} is missing, incomplete, or grid is empty. Using default empty grid.`);
     const defaultSize = 15; // Default for many NYT puzzles
     return {
@@ -71,11 +59,10 @@ const transformNytBodyToBoardData = (nytBody: NytPuzzleBody | undefined, puzzleI
       grid: Array(defaultSize).fill(null).map(() =>
         Array(defaultSize).fill(null).map(() => ({ char: null, isBlack: false, number: null }))
       ),
-      clues: { across: {}, down: {} },
     };
   }
 
-  const { size, grid: flatNytGrid, clues: nytCluesSource } = nytBody;
+  const { size, grid: flatNytGrid } = nytBody;
   const newGrid: CrosswordCell[][] = Array(size.rows).fill(null).map(() =>
     Array(size.cols).fill(null).map(() => ({
       char: null, // Empty grid for display initially
@@ -107,41 +94,11 @@ const transformNytBodyToBoardData = (nytBody: NytPuzzleBody | undefined, puzzleI
     }
   }
 
-  // Re-iterate to ensure numbers are only at starts of words if not directly given
-  // This is a common way puzzles are numbered if not explicit in cell data.
-  // However, NYT data usually IS explicit via `clueNumbers` on the cell or by mapping clues to cells.
-  // If `nytCellData.clueNumbers` is reliable, the following heuristic might not be needed or could be a fallback.
-  // For now, we trust `nytCellData.clueNumbers` if present. If not, one could add a heuristic:
-  if (!flatNytGrid.some(cell => cell.clueNumbers && cell.clueNumbers.length > 0)) {
-    console.warn("No explicit clue numbers found in NYT grid cells. Attempting heuristic numbering (may be inaccurate).");
-    let currentNumber = 1;
-    for (let r = 0; r < size.rows; r++) {
-        for (let c = 0; c < size.cols; c++) {
-            if (newGrid[r][c].isBlack) continue;
-            const isAcrossStart = (c === 0 || newGrid[r][c - 1]?.isBlack) && (c < size.cols - 1 && !newGrid[r][c + 1]?.isBlack);
-            const isDownStart = (r === 0 || newGrid[r - 1]?.[c]?.isBlack) && (r < size.rows - 1 && !newGrid[r + 1]?.[c]?.isBlack);
-            if ((isAcrossStart || isDownStart) && !newGrid[r][c].number) { // Only if not already numbered
-                newGrid[r][c].number = currentNumber++;
-            }
-        }
-    }
-  }
 
-
-  const clues: CrosswordClues = { across: {}, down: {} };
-  if (nytCluesSource) {
-    nytCluesSource.across.forEach(clue => {
-      clues.across[clue.number] = clue.text;
-    });
-    nytCluesSource.down.forEach(clue => {
-      clues.down[clue.number] = clue.text;
-    });
-  }
 
   return {
     size: { rows: size.rows, cols: size.cols },
-    grid: newGrid,
-    clues: clues,
+    grid: newGrid
   };
 };
 
@@ -250,12 +207,12 @@ const PuzzlePage: React.FC = () => {
     );
   }
 
-  const { puzzle, topSolvers } = pageData;
+  const { puzzle, topSolutions } = pageData;
   const formattedPrintDate = new Date(puzzle.printDate).toLocaleDateString('en-US', {
     year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC',
   });
 
-  const displaySolutions = transformSolversForDisplay(topSolvers);
+  const displaySolutions = transformSolversForDisplay(topSolutions);
 
   return (
     <Container maxWidth="lg"> {/* Using maxWidth="lg" for better layout of grid and clues */}
@@ -273,7 +230,7 @@ const PuzzlePage: React.FC = () => {
       </Box>
 
       <SolverList
-        solvers={topSolvers.map(s => ({
+        solvers={topSolutions.map(s => ({
           userID: s.userID,
           solveTime: s.calcs?.secondsSpentSolving,
         }))}

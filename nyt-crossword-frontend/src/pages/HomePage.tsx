@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Typography, Paper, CircularProgress, Alert, Grid } from '@mui/material'; // Removed List, ListItem, ListItemText
 import { useNavigate } from 'react-router-dom'; // Removed Link as SolverList handles it
-import { fetchTodaysPuzzleData } from '../services/FetchData';
+import { fetchTodaysPuzzleData, fetchPuzzleDataByDate } from '../services/FetchData';
 import PuzzleCalendar from '../components/PuzzleCalendar';
 import SolverList from '../components/SolverList'; // Import SolverList
 
@@ -32,8 +32,18 @@ const HomePage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const handleDateSelect = (date: Date) => {
-    const dateString = date.toISOString().split('T')[0]; // Format date as YYYY-MM-DD
-    navigate(`/puzzle/${dateString}`);
+    const dateString = date.toISOString().split('T')[0];
+    fetchPuzzleDataByDate(dateString)
+      .then(puzzleData => {
+        if (puzzleData && puzzleData.puzzleID) {
+          navigate(`/puzzle/${puzzleData.puzzleID}`);
+        } else {
+          alert('No puzzle found for this date. dateString: ' + dateString);
+        }
+      })
+      .catch(() => {
+        alert('Failed to fetch puzzle for this date.');
+      });
   };
 
   useEffect(() => {
@@ -88,12 +98,6 @@ const HomePage: React.FC = () => {
           <Typography variant="h4" component="h1" gutterBottom>
             Today's Puzzle - {new Date(data.puzzle.printDate).toLocaleDateString()}
           </Typography>
-
-          <Paper elevation={3} sx={{ padding: 2, marginBottom: 3 }}>
-            <Typography variant="h6">Puzzle Information</Typography>
-            <Typography>Puzzle ID: {data.puzzle.puzzleID}</Typography>
-            {/* Add more puzzle details here as they become available */}
-          </Paper>
 
           <SolverList
             solvers={data.topSolutions.map(s => ({

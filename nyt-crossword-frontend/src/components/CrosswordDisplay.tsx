@@ -1,6 +1,5 @@
 import React from 'react';
 import { Box, Grid, Paper, Typography } from '@mui/material'; // SvgIcon removed as it's not used
-import ClueDisplay from './ClueDisplay'; // Import ClueDisplay
 import { Button } from '@mui/material'; // Added Button
 import { useEffect, useState } from 'react'; // Added hooks
 
@@ -32,15 +31,9 @@ export interface CrosswordCell {
   highlightColor?: string; // For highlighting solver paths
 }
 
-export interface CrosswordClues {
-  across: { [num: number]: string };
-  down: { [num: number]: string };
-}
-
 export interface CrosswordBoardData {
   size: { rows: number; cols: number };
   grid: CrosswordCell[][]; // 2D array of cells
-  clues: CrosswordClues;
 }
 
 // --- Component Props ---
@@ -137,7 +130,7 @@ const CrosswordDisplay: React.FC<CrosswordDisplayProps> = ({ boardData, solution
     return <Typography>Loading crossword grid...</Typography>;
   }
 
-  const { size, clues } = boardData; // grid is now from currentGrid state
+  const { size } = boardData; // grid is now from currentGrid state
   const totalWidth = size.cols * CELL_SIZE;
   const totalHeight = size.rows * CELL_SIZE;
 
@@ -232,13 +225,6 @@ const CrosswordDisplay: React.FC<CrosswordDisplayProps> = ({ boardData, solution
             )}
             {/* Race lines could be drawn here as SVG paths if desired, but cell highlighting is simpler for now */}
           </svg>
-        </Paper>
-      </Grid>
-
-      {/* Clues */}
-      <Grid>
-        <Paper elevation={3} sx={{ p: 2, maxHeight: totalHeight > 0 ? totalHeight : '600px', overflowY: 'auto' }}>
-          <ClueDisplay clues={clues} />
         </Paper>
       </Grid>
     </Grid>
