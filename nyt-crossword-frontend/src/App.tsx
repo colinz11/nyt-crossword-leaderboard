@@ -18,7 +18,7 @@ const App: React.FC = () => {
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/user/:userId" element={<UserPage />} />
-            <Route path="/puzzle/:puzzleId" element={<PuzzlePage />} />
+            <Route path="/puzzle/:date" element={<PuzzlePage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
