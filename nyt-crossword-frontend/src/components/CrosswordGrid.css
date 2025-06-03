@@ -1,36 +1,39 @@
 .crossword-grid-container {
   width: 100%;
   margin: 0 auto;
-  padding: var(--spacing-lg);
+  padding: var(--spacing-xl);
   background-color: var(--background);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
 }
 
 .crossword-grid-container.weekday {
-  max-width: 400px;
+  max-width: 500px;
 }
 
 .crossword-grid-container.saturday {
-  max-width: 500px;
+  max-width: 600px;
 }
 
 .crossword-grid-title {
   font-family: var(--font-primary);
   font-size: 1.25rem;
   color: var(--text-primary);
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
   text-align: center;
+  letter-spacing: -0.02em;
+  font-weight: 600;
 }
 
 .crossword-grid {
   aspect-ratio: 1;
   display: grid;
   gap: 1px;
-  background-color: var(--border);
+  background-color: var(--text-primary);
   border: 2px solid var(--text-primary);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   overflow: hidden;
+  box-shadow: var(--shadow-sm);
 }
 
 .weekday .crossword-grid {
@@ -62,9 +65,11 @@
   justify-content: center;
   font-family: var(--font-primary);
   font-weight: 600;
-  font-size: clamp(0.75rem, 2vw, 1.25rem);
-  color: #000000;
+  font-size: clamp(1rem, 3vw, 1.5rem);
+  color: var(--text-primary);
   text-transform: uppercase;
+  transition: all var(--transition-fast);
+  position: relative;
 }
 
 .crossword-cell.blank {
@@ -73,19 +78,21 @@
 
 .crossword-cell.confirmed {
   color: var(--accent);
+  background-color: var(--background-alt);
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
   .crossword-grid-container {
-    padding: var(--spacing-md);
+    padding: var(--spacing-lg);
   }
 
   .crossword-grid-title {
     font-size: 1rem;
+    margin-bottom: var(--spacing-md);
   }
 
   .crossword-cell {
-    font-size: clamp(0.75rem, 4vw, 1.25rem);
+    font-size: clamp(0.875rem, 5vw, 1.25rem);
   }
 } 

@@ -74,7 +74,7 @@ const SolverList: React.FC<SolverListProps> = ({
               </span>
               <div className="solver-time">
                 {solver.displayValue ? solver.displayValue :
-                 solver.solveTime !== undefined ? `${solver.solveTime.toFixed(2)} seconds` : ''}
+                 solver.solveTime !== undefined ? `${solver.solveTime} seconds` : ''}
               </div>
             </div>
             {solver.trend && (

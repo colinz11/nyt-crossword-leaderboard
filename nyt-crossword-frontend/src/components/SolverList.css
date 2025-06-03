@@ -1,29 +1,30 @@
 .solver-list {
   background-color: var(--background);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  padding: var(--spacing-lg);
-  margin-bottom: var(--spacing-xl);
+  border: 1px solid var(--border);
+  padding: var(--spacing-xl);
 }
 
 .solver-list-title {
   font-family: var(--font-primary);
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   color: var(--text-primary);
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  letter-spacing: -0.02em;
+  font-weight: 600;
 }
 
 .solver-list-container {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-md);
 }
 
 .solver-list-item {
   display: flex;
   align-items: center;
-  padding: var(--spacing-md);
-  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-lg);
   background-color: var(--background);
   transition: all var(--transition-fast);
   border: 1px solid var(--border);
@@ -40,23 +41,24 @@
 
 .solver-list-item:active {
   transform: translateY(0);
-  box-shadow: var(--shadow-sm);
 }
 
 .solver-rank {
-  margin-right: var(--spacing-md);
+  margin-right: var(--spacing-lg);
 }
 
 .rank-number {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   font-weight: 600;
   font-size: 0.875rem;
   background-color: var(--background-alt);
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
 }
 
 .solver-info {
@@ -70,6 +72,8 @@
   font-weight: 600;
   color: var(--text-primary);
   transition: color var(--transition-fast);
+  font-size: 1rem;
+  letter-spacing: -0.01em;
 }
 
 .solver-list-item:hover .solver-name {
@@ -83,16 +87,22 @@
 
 .solver-trend {
   font-size: 1.25rem;
-  padding: var(--spacing-xs);
-  border-radius: var(--radius-sm);
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+  opacity: 0.8;
+}
+
+.solver-list-item:hover .solver-trend {
+  opacity: 1;
 }
 
 .trend-up {
-  color: #22c55e;
+  color: #00c853;
 }
 
 .trend-down {
-  color: #ef4444;
+  color: #ff3d00;
 }
 
 .trend-neutral {
@@ -103,15 +113,16 @@
 .rank-first .rank-number {
   background-color: #ffd700;
   color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
 }
 
 .rank-second .rank-number {
-  background-color: #c0c0c0;
+  background-color: #e0e0e0;
   color: var(--text-primary);
 }
 
 .rank-third .rank-number {
-  background-color: #cd7f32;
+  background-color: #d4a276;
   color: var(--text-primary);
 }
 
@@ -120,29 +131,32 @@
   color: var(--text-secondary);
   padding: var(--spacing-xl);
   font-style: italic;
-  background-color: var(--background);
+  background-color: var(--background-alt);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
   .solver-list {
-    padding: var(--spacing-md);
+    padding: var(--spacing-lg);
   }
 
   .solver-list-title {
-    font-size: 1.5rem;
-    margin-bottom: var(--spacing-md);
+    font-size: 1.25rem;
+    margin-bottom: var(--spacing-lg);
   }
 
   .solver-list-item {
-    padding: var(--spacing-sm);
+    padding: var(--spacing-md);
+  }
+
+  .solver-rank {
+    margin-right: var(--spacing-md);
   }
 
   .rank-number {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     font-size: 0.75rem;
   }
 
@@ -152,5 +166,10 @@
 
   .solver-time {
     font-size: 0.75rem;
+  }
+
+  .solver-trend {
+    padding: var(--spacing-xs);
+    font-size: 1rem;
   }
 } 
