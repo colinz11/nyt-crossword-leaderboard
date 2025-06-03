@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" rx="64" fill="#0066cc"/>
+  
+  <!-- Crossword Grid -->
+  <g transform="translate(64, 64)" fill="#ffffff">
+    <!-- Grid lines -->
+    <path d="M0 0h384v384h-384v-384zM128 0v384M256 0v384M0 128h384M0 256h384" stroke="#ffffff" stroke-width="8"/>
+    
+    <!-- Sample filled squares -->
+    <rect x="0" y="0" width="128" height="128" fill="#ffffff" opacity="0.2"/>
+    <rect x="256" y="128" width="128" height="128" fill="#ffffff" opacity="0.2"/>
+    <rect x="128" y="256" width="128" height="128" fill="#ffffff" opacity="0.2"/>
+    
+    <!-- Sample numbers -->
+    <text x="10" y="30" font-family="Arial" font-size="24" fill="#ffffff">1</text>
+    <text x="138" y="158" font-family="Arial" font-size="24" fill="#ffffff">2</text>
+    <text x="266" y="286" font-family="Arial" font-size="24" fill="#ffffff">3</text>
+  </g>
+</svg> 
