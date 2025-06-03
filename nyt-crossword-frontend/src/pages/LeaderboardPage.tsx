@@ -8,6 +8,8 @@ import {
     fetchLeaderboardByLongestStreak
 } from '../services/FetchData';
 import LeaderboardCategory from '../components/LeaderboardCategory';
+import { formatTime } from '../utils/utils';
+import './LeaderboardPage.css';
 
 interface LeaderboardEntry {
     userID: string;
@@ -16,20 +18,6 @@ interface LeaderboardEntry {
     valueLabel: string;
 }
 
-// Utility to format time (similar to PuzzlePage)
-const formatTime = (seconds: number): string => {
-    if (seconds === null || seconds === undefined || isNaN(seconds) || seconds < 0) return 'N/A';
-    if (seconds === 0) return '0s';
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.round(seconds % 60); // Round seconds to nearest whole number
-    let timeString = '';
-    if (mins > 0) {
-        timeString += `${mins}m `;
-    }
-    timeString += `${secs}s`;
-    return timeString.trim();
-};
-
 const LeaderboardPage: React.FC = () => {
     const [averageTimeLeaderboard, setAverageTimeLeaderboard] = useState<LeaderboardEntry[]>([]);
     const [puzzlesSolvedLeaderboard, setPuzzlesSolvedLeaderboard] = useState<LeaderboardEntry[]>([]);
@@ -37,7 +25,7 @@ const LeaderboardPage: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-    const limit = 5;
+    const limit = 10; // Show more entries
 
     useEffect(() => {
         const fetchLeaderboards = async () => {
@@ -54,7 +42,7 @@ const LeaderboardPage: React.FC = () => {
                         userID: entry.userID,
                         username: entry.username,
                         value: formatTime(entry.averageSolveTime),
-                        valueLabel: 'Avg. Time'
+                        valueLabel: 'Average Time'
                     }))
                 );
                 setPuzzlesSolvedLeaderboard(
@@ -62,7 +50,7 @@ const LeaderboardPage: React.FC = () => {
                         userID: entry.userID,
                         username: entry.username,
                         value: entry.puzzlesSolvedCount,
-                        valueLabel: 'Puzzles Solved'
+                        valueLabel: 'Total Puzzles'
                     }))
                 );
                 setLongestStreakLeaderboard(
@@ -70,7 +58,7 @@ const LeaderboardPage: React.FC = () => {
                         userID: entry.userID,
                         username: entry.username,
                         value: entry.longestStreak,
-                        valueLabel: 'Streak'
+                        valueLabel: 'Days'
                     }))
                 );
             } catch (err: any) {
@@ -86,44 +74,50 @@ const LeaderboardPage: React.FC = () => {
 
     if (loading) {
         return (
-            <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+            <div className="leaderboard-loading">
                 <CircularProgress />
-            </Container>
+            </div>
         );
     }
 
     if (error) {
         return (
-            <Container>
-                <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>
-            </Container>
+            <div className="leaderboard-error">
+                <Alert severity="error">{error}</Alert>
+            </div>
         );
     }
 
     return (
-        <Container maxWidth="lg">
-            <Typography variant="h3" component="h1" gutterBottom align="center" sx={{ mt: 3, mb: 3 }}>
-                🏆 General Leaderboards 🏆
-            </Typography>
-            <Grid container spacing={4}>
-                <LeaderboardCategory
-                    title="Fastest Solvers"
-                    subtitle="(Average Solve Time)"
-                    entries={averageTimeLeaderboard}
-                />
-                <LeaderboardCategory
-                    title="Most Puzzles Solved"
-                    subtitle="(Total Count)"
-                    entries={puzzlesSolvedLeaderboard}
-                />
-                <LeaderboardCategory
-                    title="Longest Streaks"
-                    subtitle="(Consecutive Days Solved)"
-                    entries={longestStreakLeaderboard}
-                    valueSuffix="days"
-                />
-            </Grid>
-        </Container>
+        <div className="leaderboard-page">
+            <div className="container">
+                <div className="leaderboard-page-header">
+                    <h1 className="leaderboard-page-title">Leaderboards</h1>
+                    <p className="leaderboard-page-subtitle">
+                        Compete with fellow crossword enthusiasts and track your progress
+                    </p>
+                </div>
+
+                <div className="leaderboard-grid">
+                    <LeaderboardCategory
+                        title="Speed Demons"
+                        subtitle="Fastest average solve times"
+                        entries={averageTimeLeaderboard}
+                    />
+                    <LeaderboardCategory
+                        title="Puzzle Masters"
+                        subtitle="Most puzzles completed"
+                        entries={puzzlesSolvedLeaderboard}
+                    />
+                    <LeaderboardCategory
+                        title="Consistency Kings"
+                        subtitle="Longest solving streaks"
+                        entries={longestStreakLeaderboard}
+                        valueSuffix="days"
+                    />
+                </div>
+            </div>
+        </div>
     );
 };
 

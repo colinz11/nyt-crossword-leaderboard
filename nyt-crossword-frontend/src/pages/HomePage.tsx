@@ -45,7 +45,19 @@ const HomePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleDateSelect = (date: Date) => {
-    const dateString = date.toISOString().split('T')[0];
+    if (!(date instanceof Date) || isNaN(date.getTime())) {
+      console.error('Invalid date selected:', date);
+      return;
+    }
+
+    // Create a new date object in UTC
+    const utcDate = new Date(Date.UTC(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    ));
+    
+    const dateString = utcDate.toISOString().split('T')[0];
     navigate(`/puzzle/${dateString}`);
   };
 

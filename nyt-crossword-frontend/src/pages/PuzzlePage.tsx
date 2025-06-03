@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom'; // Link as RouterLink removed, SolverList handles it
-import { CircularProgress, Alert } from '@mui/material'; // List, ListItem, ListItemText removed
-import { fetchPuzzleDataByDate } from '../services/FetchData'; // Import services
-import SolverList from '../components/SolverList'; // Import SolverList
+import { useParams, useNavigate } from 'react-router-dom';
+import { CircularProgress, Alert } from '@mui/material';
+import { fetchPuzzleDataByDate } from '../services/FetchData';
+import SolverList from '../components/SolverList';
 import CrosswordGrid from '../components/CrosswordGrid';
 import './PuzzlePage.css';
 
-
 // Interface for Puzzle data (matching backend response)
-interface PuzzleApiResponse { // Renamed to avoid conflict with internal Puzzle type if any
-  _id: string; // MongoDB document ID
-  puzzleID: string; // The specific ID for the puzzle (e.g., from NYT)
+interface PuzzleApiResponse {
+  _id: string;
+  puzzleID: string;
   printDate: string;
   editor?: string;
   author?: string;
@@ -45,12 +44,12 @@ interface PuzzlePageData {
   topSolutions: SolverApiResponse[];
 }
 
-
 // Props for PuzzlePage (currently none as params are from URL)
 // interface PuzzlePageProps {}
 
 const PuzzlePage: React.FC = () => {
-  const { dateString } = useParams<{ dateString?: string }>();
+  const params = useParams<{ date: string }>();
+  const dateString = params.date;
   const navigate = useNavigate();
   const [pageData, setPageData] = useState<PuzzlePageData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -60,28 +59,51 @@ const PuzzlePage: React.FC = () => {
     const loadPuzzleData = async () => {
       setLoading(true);
       setError(null);
-      setPageData(null); // Reset page data on new load
+      setPageData(null);
 
       try {
         let fetchedData: PuzzlePageData | null = null;
         let dateToFetch = dateString;
+        
+        console.log('Received date string:', dateToFetch);
 
         // If no dateString, use today's date in YYYY-MM-DD format
         if (!dateToFetch) {
           const today = new Date();
-          dateToFetch = today.toISOString().split('T')[0];
-          // Optionally, update the URL to reflect today's date
+          const utcToday = new Date(Date.UTC(
+            today.getFullYear(),
+            today.getMonth(),
+            today.getDate()
+          ));
+          dateToFetch = utcToday.toISOString().split('T')[0];
+          // Update the URL to reflect today's date using the new structure
           navigate(`/puzzle/${dateToFetch}`, { replace: true });
         }
 
         if (dateToFetch) {
+          // Validate date format
           if (!/^\d{4}-\d{2}-\d{2}$/.test(dateToFetch)) {
+            console.error('Invalid date format:', dateToFetch);
             setError("Invalid date format. Please use YYYY-MM-DD.");
             setLoading(false);
             return;
           }
+
+          // Additional validation to ensure the date is valid
+          const [year, month, day] = dateToFetch.split('-').map(Number);
+          const testDate = new Date(Date.UTC(year, month - 1, day));
+          if (
+            testDate.getUTCFullYear() !== year ||
+            testDate.getUTCMonth() !== month - 1 ||
+            testDate.getUTCDate() !== day
+          ) {
+            console.error('Invalid date values:', dateToFetch);
+            setError("Invalid date. Please select a valid date.");
+            setLoading(false);
+            return;
+          }
           fetchedData = await fetchPuzzleDataByDate(dateToFetch) as PuzzlePageData;
-        } 
+        }
 
         if (fetchedData && fetchedData.puzzle) {
           setPageData(fetchedData);

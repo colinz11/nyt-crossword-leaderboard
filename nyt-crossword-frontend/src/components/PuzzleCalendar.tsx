@@ -16,9 +16,11 @@ const PuzzleCalendar: React.FC<PuzzleCalendarProps> = ({ onDateChange, highlight
     onDateChange(value);
   };
 
-  const onChange: CalendarProps['onChange'] = (value, event) => {
-    if (value instanceof Date) {
-      handleDateClick(value);
+  const onChange: CalendarProps['onChange'] = (value) => {
+    // Handle both single date and date range selections
+    const selectedDate = Array.isArray(value) ? value[0] : value;
+    if (selectedDate instanceof Date) {
+      handleDateClick(selectedDate);
     }
   };
 
@@ -46,6 +48,7 @@ const PuzzleCalendar: React.FC<PuzzleCalendarProps> = ({ onDateChange, highlight
         prev2Label={null}
         next2Label={null}
         showNeighboringMonth={false}
+        selectRange={false}
       />
     </div>
   );

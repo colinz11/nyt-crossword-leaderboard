@@ -118,9 +118,14 @@ export const fetchGameSolutions = async (puzzleID: string) => {
  */
 export const verifyAndCreateUser = async (username: string, token: string) => {
     try {
+        // Calculate expiration date (1 year from now)
+        const expirationDate = new Date();
+        expirationDate.setFullYear(expirationDate.getFullYear() + 1);
+
         const response = await axios.post(`${API_BASE_URL}/api/users/verify`, {
             username,
-            token
+            token,
+            expirationDate: expirationDate.toISOString()
         });
         return response.data;
     } catch (error) {

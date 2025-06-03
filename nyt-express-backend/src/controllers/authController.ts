@@ -3,10 +3,10 @@ import { User } from '../models/user';
 import NytService from '../services/nytService';
 
 export const verifyAndCreateUser = async (req: Request, res: Response): Promise<void> => {
-    const { username, token } = req.body;
+    const { username, token, expirationDate } = req.body;
 
-    if (!username || !token) {
-        res.status(400).json({ error: 'Username and token are required' });
+    if (!username || !token || !expirationDate) {
+        res.status(400).json({ error: 'Username, token, and expiration date are required' });
         return;
     }
 
@@ -33,18 +33,20 @@ export const verifyAndCreateUser = async (req: Request, res: Response): Promise<
         const highestUser = await User.findOne().sort('-userID');
         const nextUserID = highestUser ? highestUser.userID + 1 : 1;
 
-        // Create new user
+        // Create new user with expiration date
         const user = new User({
             userID: nextUserID,
             name: username,
-            cookie: token
+            cookie: token,
+            expirationDate: new Date(expirationDate)
         });
 
         await user.save();
 
         res.status(201).json({
             userID: user.userID,
-            username: user.name
+            username: user.name,
+            expirationDate: user.expirationDate
         });
     } catch (error) {
         console.error('Error verifying and creating user:', error);

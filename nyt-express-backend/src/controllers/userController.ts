@@ -24,6 +24,12 @@ export const getUserStats = async (req: Request, res: Response): Promise<void> =
             return;
         }
 
+        // Check if token has expired
+        if (user.expirationDate && new Date() > new Date(user.expirationDate)) {
+            res.status(401).json({ error: 'Token has expired. Please log in again with a new token.' });
+            return;
+        }
+
         // Fetch user solutions
         await userEngine.getUserSolutions(userID);
 
@@ -49,6 +55,7 @@ export const getUserStats = async (req: Request, res: Response): Promise<void> =
         res.status(200).json({
             userID: user.userID,
             username: user.name,
+            expirationDate: user.expirationDate,
             averageSolveTime,
             totalPuzzlesSolved,
             currentStreak,

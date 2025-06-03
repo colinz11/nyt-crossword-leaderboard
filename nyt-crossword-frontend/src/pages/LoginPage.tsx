@@ -12,6 +12,12 @@ import {
 import { verifyAndCreateUser } from '../services/FetchData';
 import './LoginPage.css';
 
+interface LoginResponse {
+  userID: number;
+  username: string;
+  expirationDate: string;
+}
+
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
@@ -26,8 +32,13 @@ const LoginPage: React.FC = () => {
 
     try {
       const response = await verifyAndCreateUser(username, token);
-      // If successful, navigate to the user's page
-      navigate(`/user/${response.userID}`);
+      const data = response as LoginResponse;
+      
+      // Store the expiration date in localStorage for future reference
+      localStorage.setItem('tokenExpirationDate', data.expirationDate);
+      
+      // Navigate to the user's page
+      navigate(`/user/${data.userID}`);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to verify token. Please try again.');
     } finally {

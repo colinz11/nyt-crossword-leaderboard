@@ -4,7 +4,7 @@ export const formatTime = (timeInSeconds: number | null): string => {
       return 'N/A'; // Handle null case
     }
     if (timeInSeconds < 60) {
-      return `${timeInSeconds}s`; // Display seconds if less than 60
+      return `${Math.round(timeInSeconds)}s`; // Display rounded seconds if less than 60
     }
     const minutes = Math.floor(timeInSeconds / 60);
     const seconds = Math.round(timeInSeconds % 60); // Round to the nearest second
