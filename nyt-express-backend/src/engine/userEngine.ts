@@ -65,7 +65,7 @@ class UserEngine {
     }
 
     getAverageSolveTime(): number {
-        const totalSolveTime = this.userSolutions.reduce((acc, solution) => {
+        const totalSolveTime = this.solvedPuzzles.reduce((acc, solution) => {
             return acc + (solution.calcs?.secondsSpentSolving || 0);
         }, 0);
         return this.solvedPuzzles.length > 0 ? parseFloat((totalSolveTime / this.solvedPuzzles.length).toFixed(2)) : 0;
