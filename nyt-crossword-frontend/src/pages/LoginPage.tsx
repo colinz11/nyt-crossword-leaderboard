@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { verifyAndCreateUser } from '../services/FetchData';
 import './LoginPage.css';
+import { trackUserRegistration } from '../utils/analytics';
 
 interface LoginResponse {
   userID: number;
@@ -32,6 +33,7 @@ const LoginPage: React.FC = () => {
 
     try {
       const response = await verifyAndCreateUser(username, token);
+      trackUserRegistration(true);
       const data = response as LoginResponse;
       
       // Store the expiration date in localStorage for future reference
@@ -40,6 +42,7 @@ const LoginPage: React.FC = () => {
       // Navigate to the user's page
       navigate(`/user/${data.userID}`);
     } catch (err: any) {
+      trackUserRegistration(false);
       setError(err.response?.data?.error || 'Failed to verify token. Please try again.');
     } finally {
       setLoading(false);

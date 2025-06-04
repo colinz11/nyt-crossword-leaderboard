@@ -22,7 +22,7 @@ const nytController = new NytController(Puzzle, Solution, User);
 
 // NYT Routes
 router.post('/nyt/puzzles', nytController.fetchAndSavePuzzlesByDateRange.bind(nytController));
-router.post('/nyt/refresh-all', nytController.refreshAll.bind(nytController));
+router.post('/nyt/refresh-solutions', nytController.refreshUserSolutions.bind(nytController));
 router.post('/nyt/save-user', nytController.saveUser.bind(nytController));
 
 // User Routes

@@ -33,16 +33,7 @@ export const fetchUserStats = async (userID: string) => {
  */
 export const refreshUserSolutions = async (userID: string) => {
     try {
-        // Get dates for the last 30 days
-        const end = new Date();
-        const start = new Date();
-        start.setDate(start.getDate() - 30);
-
-        const response = await api.post(`/api/nyt/solutions`, {
-            userID,
-            start: start.toISOString().split('T')[0],
-            end: end.toISOString().split('T')[0]
-        });
+        const response = await api.post(`/api/nyt/refresh-solutions`, { userID });
         return response.data;
     } catch (error) {
         console.error(`Error refreshing solutions for userID ${userID}:`, error);
