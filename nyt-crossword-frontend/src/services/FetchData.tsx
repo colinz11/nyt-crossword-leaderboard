@@ -1,6 +1,15 @@
 import axios from 'axios';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
+const API_KEY = process.env.REACT_APP_API_KEY;
+
+// Create axios instance with default config
+const api = axios.create({
+    baseURL: API_BASE_URL,
+    headers: {
+        'X-API-Key': API_KEY,
+    }
+});
 
 /**
  * Fetch user stats from the backend.
@@ -9,7 +18,7 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:808
  */
 export const fetchUserStats = async (userID: string) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/api/users/stats/${userID}`);
+        const response = await api.get(`/api/users/stats/${userID}`);
         return response.data; // Return the stats data from the response
     } catch (error) {
         console.error(`Error fetching user stats for userID ${userID}:`, error);
@@ -29,7 +38,7 @@ export const refreshUserSolutions = async (userID: string) => {
         const start = new Date();
         start.setDate(start.getDate() - 30);
 
-        const response = await axios.post(`${API_BASE_URL}/api/nyt/solutions`, {
+        const response = await api.post(`/api/nyt/solutions`, {
             userID,
             start: start.toISOString().split('T')[0],
             end: end.toISOString().split('T')[0]
@@ -48,7 +57,7 @@ export const refreshUserSolutions = async (userID: string) => {
  */
 export const fetchPuzzleDataByDate = async (dateString: string) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/api/puzzles/by-date/${dateString}`);
+        const response = await api.get(`/api/puzzles/by-date/${dateString}`);
         return response.data;
     } catch (error) {
         console.error(`Error fetching puzzle data for date ${dateString}:`, error);
@@ -62,7 +71,7 @@ export const fetchPuzzleDataByDate = async (dateString: string) => {
  */
 export const fetchTodaysPuzzleData = async () => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/api/puzzles/today`);
+        const response = await api.get(`/api/puzzles/today`);
         return response.data;
     } catch (error) {
         console.error('Error fetching today\'s puzzle data:', error);
@@ -72,7 +81,7 @@ export const fetchTodaysPuzzleData = async () => {
 
 export const fetchLeaderboardByAverageTime = async (limit: number = 5) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/api/leaderboard/average-time?limit=${limit}`);
+        const response = await api.get(`/api/leaderboard/average-time?limit=${limit}`);
         return response.data;
     } catch (error) {
         console.error(`Error fetching leaderboard by average time:`, error);
@@ -82,7 +91,7 @@ export const fetchLeaderboardByAverageTime = async (limit: number = 5) => {
 
 export const fetchLeaderboardByPuzzlesSolved = async (limit: number = 5) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/api/leaderboard/puzzles-solved?limit=${limit}`);
+        const response = await api.get(`/api/leaderboard/puzzles-solved?limit=${limit}`);
         return response.data;
     } catch (error) {
         console.error(`Error fetching leaderboard by puzzles solved:`, error);
@@ -92,7 +101,7 @@ export const fetchLeaderboardByPuzzlesSolved = async (limit: number = 5) => {
 
 export const fetchLeaderboardByLongestStreak = async (limit: number = 5) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/api/leaderboard/longest-streak?limit=${limit}`);
+        const response = await api.get(`/api/leaderboard/longest-streak?limit=${limit}`);
         return response.data;
     } catch (error) {
         console.error(`Error fetching leaderboard by longest streak:`, error);
@@ -102,7 +111,7 @@ export const fetchLeaderboardByLongestStreak = async (limit: number = 5) => {
 
 export const fetchGameSolutions = async (puzzleID: string) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/api/puzzles/${puzzleID}/solutions`);
+        const response = await api.get(`/api/puzzles/${puzzleID}/solutions`);
         return response.data; // Return the stats data from the response
     } catch (error) {
         console.error(`Error fetching puzzle solutions for puzzleID ${puzzleID}:`, error);
@@ -122,7 +131,7 @@ export const verifyAndCreateUser = async (username: string, token: string) => {
         const expirationDate = new Date();
         expirationDate.setFullYear(expirationDate.getFullYear() + 1);
 
-        const response = await axios.post(`${API_BASE_URL}/api/users/verify`, {
+        const response = await api.post(`/api/users/verify`, {
             username,
             token,
             expirationDate: expirationDate.toISOString()

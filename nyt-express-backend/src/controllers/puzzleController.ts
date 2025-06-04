@@ -63,3 +63,33 @@ export const getPuzzleByDate = async (req: Request, res: Response): Promise<any>
     res.status(500).json({ error: `Failed to fetch puzzle for date ${date}` });
   }
 };
+
+export const getAllPuzzles = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { limit = '100', offset = '0', sort = '-printDate' } = req.query;
+        
+        const puzzles = await Puzzle.find({}, {
+            puzzleID: 1,
+            printDate: 1,
+            title: 1,
+            author: 1,
+            editor: 1,
+            _id: 0
+        })
+        .sort(sort as string)
+        .skip(Number(offset))
+        .limit(Number(limit));
+
+        const total = await Puzzle.countDocuments();
+        
+        res.status(200).json({
+            puzzles,
+            total,
+            limit: Number(limit),
+            offset: Number(offset)
+        });
+    } catch (error) {
+        console.error('Error fetching puzzles:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};

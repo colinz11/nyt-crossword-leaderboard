@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Container, Typography, Grid, CircularProgress, Alert
+    CircularProgress, Alert
 } from '@mui/material';
 import {
     fetchLeaderboardByAverageTime,
