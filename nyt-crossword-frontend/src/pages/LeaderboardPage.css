@@ -32,7 +32,8 @@
 }
 
 .leaderboard-grid {
-  display: grid;
+  display: flex;
+  justify-content: center;
   gap: var(--spacing-xl);
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
 }

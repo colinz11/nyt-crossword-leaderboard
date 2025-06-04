@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import nytRoutes from './routes/nytRoutes';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import { authenticateApiKey } from './middleware/auth';
 
 dotenv.config();
 
@@ -13,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 const corsOptions = {
     origin: process.env.FRONTEND_URL || 'http://localhost:3000',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key'],
 };
 
 app.use(cors(corsOptions));
@@ -24,12 +25,13 @@ mongoose.connect(process.env.DATABASE_URL as string)
     .then(() => console.log('MongoDB connected'))
     .catch(err => console.error('Database connection error:', err));
 
-app.use('/api', nytRoutes);
-
-// Health check endpoint for Vercel
+// Health check endpoint for Vercel - no auth required
 app.get('/health', (req: Request, res: Response) => {
     res.status(200).json({ status: 'ok' });
 });
+
+// Apply authentication middleware to all API routes
+app.use('/api', authenticateApiKey, nytRoutes);
 
 // Error handling middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {

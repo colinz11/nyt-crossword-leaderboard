@@ -69,3 +69,45 @@ export const getUserStats = async (req: Request, res: Response): Promise<void> =
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+
+export const deleteUser = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { userID } = req.params;
+
+        if (!userID) {
+            res.status(400).json({ error: 'User ID is required' });
+            return;
+        }
+
+        // Delete user's solutions
+        await Solution.deleteMany({ userID });
+
+        // Delete user
+        const result = await User.findOneAndDelete({ userID: Number(userID) });
+        
+        if (!result) {
+            res.status(404).json({ error: 'User not found' });
+            return;
+        }
+
+        res.status(200).json({ message: 'User and associated data deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+export const getAllUsers = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const users = await User.find({}, { 
+            userID: 1, 
+            name: 1, 
+            expirationDate: 1,
+            _id: 0 
+        });
+        res.status(200).json(users);
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};

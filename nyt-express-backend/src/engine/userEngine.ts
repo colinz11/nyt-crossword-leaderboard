@@ -129,9 +129,8 @@ class UserEngine {
     } {
         // Filter solutions for the given day of the week and only include solved solutions
         const solutionsForDay = this.sortedSolutions.filter(solution => {
-            // Add one day to the printDate to adjust for the offset
-            const adjustedDate = moment(solution.printDate).add(1, 'day');
-            const solutionDay = adjustedDate.format('dddd'); // Get the day of the week in EST
+            // Use UTC date directly without adding a day
+            const solutionDay = moment(solution.printDate).utc().format('dddd');
             return solutionDay.toLowerCase() === dayOfWeek.toLowerCase() && solution.calcs?.solved;
         });
     
@@ -156,10 +155,10 @@ class UserEngine {
         // Find the best solve time and its date
         const bestSolve = solutionsForDay.reduce(
             (best, solution) => {
-                const adjustedDate = moment(solution.printDate).add(1, 'day');
+                const utcDate = moment(solution.printDate).utc();
                 return solution.calcs?.secondsSpentSolving !== undefined &&
                     solution.calcs.secondsSpentSolving < best.time
-                    ? { time: solution.calcs.secondsSpentSolving, date: adjustedDate.format('YYYY-MM-DD') }
+                    ? { time: solution.calcs.secondsSpentSolving, date: utcDate.format('YYYY-MM-DD') }
                     : best;
             },
             { time: Number.MAX_SAFE_INTEGER, date: '' }
@@ -167,21 +166,21 @@ class UserEngine {
     
         // Find this week's solve time and its date
         const thisWeeksSolve = solutionsForDay.find(solution => {
-            const adjustedDate = moment(solution.printDate).add(1, 'day');
-            return adjustedDate.isSame(moment(), 'week') &&
-                adjustedDate.format('dddd').toLowerCase() === dayOfWeek.toLowerCase();
+            const utcDate = moment(solution.printDate).utc();
+            return utcDate.isSame(moment().utc(), 'week') &&
+                utcDate.format('dddd').toLowerCase() === dayOfWeek.toLowerCase();
         });
     
         // Calculate the date for the given day of the week in the current week
         const dayIndex = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].indexOf(dayOfWeek.toLowerCase());
-        const thisWeeksDate = moment().startOf('week').add(dayIndex, 'days').format('YYYY-MM-DD');
+        const thisWeeksDate = moment().utc().startOf('week').add(dayIndex, 'days').format('YYYY-MM-DD');
     
         return {
             averageSolveTime: parseFloat(averageSolveTime.toFixed(2)),
             bestSolveTime: bestSolve.time === Number.MAX_SAFE_INTEGER ? 0 : bestSolve.time,
             bestDate: bestSolve.date,
             thisWeeksTime: thisWeeksSolve?.calcs?.secondsSpentSolving || 0,
-            thisWeeksDate: thisWeeksDate, // Always use this week's date in EST
+            thisWeeksDate: thisWeeksDate,
         };
     }
 }

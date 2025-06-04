@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Container, Typography, Grid, CircularProgress, Alert
+    CircularProgress, Alert
 } from '@mui/material';
 import {
     fetchLeaderboardByAverageTime,
@@ -113,7 +113,6 @@ const LeaderboardPage: React.FC = () => {
                         title="Consistency Kings"
                         subtitle="Longest solving streaks"
                         entries={longestStreakLeaderboard}
-                        valueSuffix="days"
                     />
                 </div>
             </div>
