@@ -175,4 +175,20 @@
   .value-cell {
     font-size: 0.875rem;
   }
+}
+
+.leaderboard-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  width: 100%;
+}
+
+.leaderboard-table tr {
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.leaderboard-table tr:hover {
+  background-color: var(--background-alt);
 } 

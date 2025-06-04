@@ -113,7 +113,6 @@ const LeaderboardPage: React.FC = () => {
                         title="Consistency Kings"
                         subtitle="Longest solving streaks"
                         entries={longestStreakLeaderboard}
-                        valueSuffix="days"
                     />
                 </div>
             </div>

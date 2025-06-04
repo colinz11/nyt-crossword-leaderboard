@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './LeaderboardCategory.css';
 
 // Interfaces for leaderboard data
@@ -45,14 +46,26 @@ const LeaderboardCategory: React.FC<LeaderboardCategoryProps> = ({ title, subtit
                         </thead>
                         <tbody>
                             {entries.map((entry, index) => (
-                                <tr key={entry.userID} className={getRankClass(index + 1)}>
+                                <tr 
+                                    key={entry.userID} 
+                                    className={getRankClass(index + 1)}
+                                    onClick={() => {}} // Empty handler to show clickability
+                                >
                                     <td className="rank-cell">
-                                        <span className="rank-number">{index + 1}</span>
+                                        <Link to={`/user/${entry.userID}`} className="leaderboard-link">
+                                            <span className="rank-number">{index + 1}</span>
+                                        </Link>
                                     </td>
-                                    <td className="user-cell">{entry.username || entry.userID}</td>
+                                    <td className="user-cell">
+                                        <Link to={`/user/${entry.userID}`} className="leaderboard-link">
+                                            {entry.username || entry.userID}
+                                        </Link>
+                                    </td>
                                     <td className="value-cell">
-                                        {entry.value}
-                                        {valueSuffix ? ` ${valueSuffix}` : ''}
+                                        <Link to={`/user/${entry.userID}`} className="leaderboard-link">
+                                            {entry.value}
+                                            {valueSuffix ? ` ${valueSuffix}` : ''}
+                                        </Link>
                                     </td>
                                 </tr>
                             ))}
