@@ -11,6 +11,13 @@ export const verifyAndCreateUser = async (req: Request, res: Response): Promise<
     }
 
     try {
+        // Check if token is already in use
+        const existingToken = await User.findOne({ cookie: token });
+        if (existingToken) {
+            res.status(400).json({ error: 'This NYT token is already registered to another user' });
+            return;
+        }
+
         // Create NYT service instance with the provided token
         const nytService = new NytService(token);
 
