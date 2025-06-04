@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import NavigationBar from './components/NavigationBar';
 import HomePage from './pages/HomePage';
 import UserPage from './pages/UserPage';
@@ -23,6 +24,7 @@ const App: React.FC = () => {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
+        <Analytics />
       </div>
     </Router>
   );

@@ -107,48 +107,111 @@ class NytController {
         }
     }
 
-    async refreshAll(req: Request, res: Response): Promise<void> {
-        const token = process.env.NYT_TOKEN;
+    async refreshUserSolutions(req: Request, res: Response): Promise<void> {
+      
+        const { userID } = req.body;
 
-        if (!token) {
-            res.status(400).json({ message: 'Missing NYT token' });
+
+        if (!userID) {
+            res.status(400).json({ message: 'Missing required parameter: userID' });
             return;
         }
 
-        const nytService = new NytService(token);
-
         try {
-            const puzzles = await nytService.fetchPuzzles('mini', '2014-01-01', moment().format('YYYY-MM-DD'));
-            await Promise.all(puzzles.map(async (puzzleData) => {
-                await this.puzzleModel.findOneAndUpdate(
-                    { puzzleID: puzzleData.puzzleID },
-                    puzzleData,
-                    { upsert: true, new: true }
-                );
-            }));
+            // Find the user first to fail fast if not found
+            const user = await this.userModel.findOne({ userID });
+            if (!user) {
+                res.status(404).json({ message: 'User not found' });
+                return;
+            }
 
-            const users = await this.userModel.find();
+            // Create user-specific NYT service with user's token
+            const userNytService = new NytService(user.cookie);
 
-            const puzzleIds = puzzles.map(puzzle => puzzle.puzzleID);
-            await Promise.all(users.map(async (user) => {
-                const userID = user.userID;
-                const token = user.cookie;
-                const nytService = new NytService(token);
+            // Get all puzzles from the database
+            console.log(`Fetching puzzles from database...`);
+            const puzzles = await this.puzzleModel.find({})
+                .sort({ printDate: 1 }) // Sort by date ascending
+                .lean(); // Use lean() for better performance since we don't need Mongoose documents
 
-                await Promise.all(puzzleIds.map(async (puzzleId) => {
-                    const solutionData = await nytService.fetchSolution(puzzleId, String(userID));
-                    await this.solutionModel.findOneAndUpdate(
-                        { userID: userID, puzzleID: puzzleId },
-                        { ...solutionData, userID: userID },
-                        { upsert: true, new: true }
-                    );
-                }));
-            }));
+            if (!puzzles.length) {
+                res.status(404).json({ message: 'No puzzles found in database. Please run puzzle sync first.' });
+                return;
+            }
 
-            res.status(200).json({ message: 'All puzzles and solutions fetched and saved successfully' });
+            console.log(`Found ${puzzles.length} puzzles to process`);
+
+            // Fetch solutions in batches to avoid overwhelming the NYT API
+            const BATCH_SIZE = 50;
+            const failedPuzzles: string[] = [];
+            const successfulSolutions: any[] = [];
+
+            console.log('Fetching solutions in batches...');
+            for (let i = 0; i < puzzles.length; i += BATCH_SIZE) {
+                const batch = puzzles.slice(i, i + BATCH_SIZE);
+                console.log(`Processing batch ${i / BATCH_SIZE + 1} of ${Math.ceil(puzzles.length / BATCH_SIZE)}`);
+
+                const solutionPromises = batch.map(async (puzzle) => {
+                    try {
+                        const solutionData = await userNytService.fetchSolution(puzzle.puzzleID.toString(), String(userID));
+                        return {
+                            ...solutionData,
+                            userID,
+                            puzzleID: puzzle.puzzleID
+                        };
+                    } catch (error) {
+                        console.error(`Failed to fetch solution for puzzle ${puzzle.puzzleID}:`, error);
+                        failedPuzzles.push(puzzle.puzzleID.toString());
+                        return null;
+                    }
+                });
+
+                const batchSolutions = await Promise.all(solutionPromises);
+                const validSolutions = batchSolutions.filter(solution => solution !== null);
+                successfulSolutions.push(...validSolutions);
+
+                if (validSolutions.length > 0) {
+                    try {
+                        // Bulk upsert solutions for this batch
+                        const solutionOps = validSolutions.map(solutionData => ({
+                            updateOne: {
+                                filter: { userID, puzzleID: solutionData.puzzleID },
+                                update: { $set: solutionData },
+                                upsert: true
+                            }
+                        }));
+
+                        await this.solutionModel.bulkWrite(solutionOps, { ordered: false });
+                    } catch (error) {
+                        console.error('Error during solution bulk upsert:', error);
+                        // Continue with next batch as some solutions might have been saved
+                    }
+                }
+
+                // Add a small delay between batches to avoid rate limiting
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+
+            const summary = {
+                totalPuzzles: puzzles.length,
+                successfulSolutions: successfulSolutions.length,
+                failedPuzzles: failedPuzzles.length,
+                failedPuzzleIds: failedPuzzles
+            };
+
+            console.log('Refresh summary:', summary);
+
+            res.status(200).json({ 
+                message: `Solutions refreshed successfully for user ${userID}`,
+                summary
+            });
         } catch (error: any) {
-            console.error('Error refreshing all puzzles and solutions:', error.message);
-            res.status(500).json({ message: 'Error refreshing all puzzles and solutions', error: error.message });
+            console.error('Error refreshing user solutions:', error);
+            res.status(500).json({ 
+                message: 'Error refreshing user solutions', 
+                error: error.message,
+                details: error.stack
+            });
         }
     }
 
