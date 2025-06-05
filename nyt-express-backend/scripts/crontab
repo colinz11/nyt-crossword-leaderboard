@@ -1,2 +1,0 @@
-# Run puzzle refresh daily at 5 AM UTC
-0 5 * * * cd /path/to/nyt-crossword-leaderboard/nyt-express-backend && ./scripts/refresh-puzzle.sh 
