@@ -1,23 +1,24 @@
-import dotenv from 'dotenv';
-import moment from 'moment';
-import NytService from '../services/nytService';
+import { Router, Request, Response, NextFunction } from 'express';
 import { Puzzle } from '../models/puzzle';
 import { Solution } from '../models/solution';
 import { User } from '../models/user';
-import mongoose from 'mongoose';
+import NytService from '../services/nytService';
+import moment from 'moment';
 
-// Load environment variables
-dotenv.config();
+const router = Router();
 
-async function refreshPuzzle() {
+// Verify cron request is from Vercel
+const verifyCron = (req: Request, res: Response, next: NextFunction): void => {
+    // Vercel sends this header with cron jobs
+    if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+    }
+    next();
+};
+
+router.post('/refresh-puzzle', verifyCron, async (req: Request, res: Response): Promise<void> => {
     try {
-        // Connect to MongoDB
-        if (!process.env.DATABASE_URL) {
-            throw new Error('DATABASE_URL environment variable is not set');
-        }
-        await mongoose.connect(process.env.DATABASE_URL);
-        console.log('Connected to MongoDB');
-
         const token = process.env.NYT_TOKEN;
         if (!token) {
             throw new Error('NYT_TOKEN environment variable is not set');
@@ -37,7 +38,8 @@ async function refreshPuzzle() {
 
         if (puzzles.length === 0) {
             console.log('No puzzle found for today');
-            process.exit(0);
+            res.status(200).json({ message: 'No puzzle found for today' });
+            return;
         }
 
         // Update or insert the puzzle
@@ -54,6 +56,12 @@ async function refreshPuzzle() {
         const users = await User.find();
         console.log(`Updating solutions for ${users.length} users`);
 
+        const results = {
+            puzzlesUpdated: puzzles.length,
+            usersProcessed: 0,
+            errors: [] as string[]
+        };
+
         for (const user of users) {
             try {
                 const userToken = user.cookie;
@@ -66,24 +74,27 @@ async function refreshPuzzle() {
                         { ...solutionData, userID: user.userID },
                         { upsert: true, new: true }
                     );
-                    console.log(`Updated solution for user ${user.userID}, puzzle ${puzzle.puzzleID}`);
                 }
+                results.usersProcessed++;
             } catch (error) {
-                console.error(`Error updating solutions for user ${user.userID}:`, error);
-                // Continue with other users even if one fails
-                continue;
+                const errorMessage = `Error updating solutions for user ${user.userID}: ${error}`;
+                console.error(errorMessage);
+                results.errors.push(errorMessage);
             }
         }
 
         console.log('Puzzle refresh completed successfully');
-    } catch (error) {
-        console.error('Error refreshing puzzle:', error);
-        process.exit(1);
-    } finally {
-        await mongoose.disconnect();
-        process.exit(0);
+        res.status(200).json({
+            message: 'Puzzle refresh completed successfully',
+            results
+        });
+    } catch (error: any) {
+        console.error('Error in cron job:', error);
+        res.status(500).json({
+            error: 'Failed to refresh puzzles',
+            details: error.message
+        });
     }
-}
+});
 
-// Run the refresh function
-refreshPuzzle(); 
+export default router; 
