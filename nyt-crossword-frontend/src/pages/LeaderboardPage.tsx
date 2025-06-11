@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import {
-    CircularProgress, Alert
+    CircularProgress, Alert, Button
 } from '@mui/material';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import {
     fetchLeaderboardByAverageTime,
     fetchLeaderboardByPuzzlesSolved,
@@ -24,55 +25,64 @@ const LeaderboardPage: React.FC = () => {
     const [longestStreakLeaderboard, setLongestStreakLeaderboard] = useState<LeaderboardEntry[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [refreshing, setRefreshing] = useState(false);
 
     const limit = 10; // Show more entries
 
-    useEffect(() => {
-        const fetchLeaderboards = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const [avgTimeData, puzzlesSolvedData, longestStreakData] = await Promise.all([
-                    fetchLeaderboardByAverageTime(limit),
-                    fetchLeaderboardByPuzzlesSolved(limit),
-                    fetchLeaderboardByLongestStreak(limit)
-                ]);
-                setAverageTimeLeaderboard(
-                    (avgTimeData || []).map((entry: any) => ({
-                        userID: entry.userID,
-                        username: entry.username,
-                        value: formatTime(entry.averageSolveTime),
-                        valueLabel: 'Average Time'
-                    }))
-                );
-                setPuzzlesSolvedLeaderboard(
-                    (puzzlesSolvedData || []).map((entry: any) => ({
-                        userID: entry.userID,
-                        username: entry.username,
-                        value: entry.puzzlesSolvedCount,
-                        valueLabel: 'Total Puzzles'
-                    }))
-                );
-                setLongestStreakLeaderboard(
-                    (longestStreakData || []).map((entry: any) => ({
-                        userID: entry.userID,
-                        username: entry.username,
-                        value: entry.longestStreak,
-                        valueLabel: 'Days'
-                    }))
-                );
-            } catch (err: any) {
-                console.error("Failed to fetch leaderboards:", err);
-                setError(err.message || "An unknown error occurred while fetching leaderboard data.");
-            } finally {
-                setLoading(false);
-            }
-        };
+    const fetchLeaderboards = async (timestamp?: number) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const [avgTimeData, puzzlesSolvedData, longestStreakData] = await Promise.all([
+                fetchLeaderboardByAverageTime(limit, timestamp),
+                fetchLeaderboardByPuzzlesSolved(limit, timestamp),
+                fetchLeaderboardByLongestStreak(limit, timestamp)
+            ]);
+            setAverageTimeLeaderboard(
+                (avgTimeData || []).map((entry: any) => ({
+                    userID: entry.userID,
+                    username: entry.username,
+                    value: formatTime(entry.averageSolveTime),
+                    valueLabel: 'Average Time'
+                }))
+            );
+            setPuzzlesSolvedLeaderboard(
+                (puzzlesSolvedData || []).map((entry: any) => ({
+                    userID: entry.userID,
+                    username: entry.username,
+                    value: entry.puzzlesSolvedCount,
+                    valueLabel: 'Total Puzzles'
+                }))
+            );
+            setLongestStreakLeaderboard(
+                (longestStreakData || []).map((entry: any) => ({
+                    userID: entry.userID,
+                    username: entry.username,
+                    value: entry.longestStreak,
+                    valueLabel: 'Days'
+                }))
+            );
+        } catch (err: any) {
+            console.error("Failed to fetch leaderboards:", err);
+            setError(err.message || "An unknown error occurred while fetching leaderboard data.");
+        } finally {
+            setLoading(false);
+            setRefreshing(false);
+        }
+    };
 
+    useEffect(() => {
         fetchLeaderboards();
     }, []);
 
-    if (loading) {
+    const handleRefresh = async () => {
+        if (refreshing) return;
+        setRefreshing(true);
+        // Add timestamp to force cache refresh
+        await fetchLeaderboards(Date.now());
+    };
+
+    if (loading && !refreshing) {
         return (
             <div className="leaderboard-loading">
                 <CircularProgress />
@@ -96,6 +106,17 @@ const LeaderboardPage: React.FC = () => {
                     <p className="leaderboard-page-subtitle">
                         Compete with fellow crossword enthusiasts and track your progress
                     </p>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleRefresh}
+                        disabled={refreshing}
+                        startIcon={refreshing ? <CircularProgress size={20} color="inherit" /> : <RefreshIcon />}
+                        className="refresh-button"
+                        sx={{ mt: 2 }}
+                    >
+                        {refreshing ? 'Refreshing...' : 'Refresh Stats'}
+                    </Button>
                 </div>
 
                 <div className="leaderboard-grid">

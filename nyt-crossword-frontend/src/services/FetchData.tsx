@@ -83,9 +83,10 @@ export const fetchTodaysPuzzleData = async () => {
     }
 };
 
-export const fetchLeaderboardByAverageTime = async (limit: number = 5) => {
+export const fetchLeaderboardByAverageTime = async (limit: number = 5, timestamp?: number) => {
     try {
-        const response = await api.get(`/api/leaderboard/average-time?limit=${limit}`);
+        const url = `/api/leaderboard/average-time?limit=${limit}${timestamp ? `&t=${timestamp}` : ''}`;
+        const response = await api.get(url);
         return response.data;
     } catch (error) {
         console.error(`Error fetching leaderboard by average time:`, error);
@@ -93,9 +94,10 @@ export const fetchLeaderboardByAverageTime = async (limit: number = 5) => {
     }
 };
 
-export const fetchLeaderboardByPuzzlesSolved = async (limit: number = 5) => {
+export const fetchLeaderboardByPuzzlesSolved = async (limit: number = 5, timestamp?: number) => {
     try {
-        const response = await api.get(`/api/leaderboard/puzzles-solved?limit=${limit}`);
+        const url = `/api/leaderboard/puzzles-solved?limit=${limit}${timestamp ? `&t=${timestamp}` : ''}`;
+        const response = await api.get(url);
         return response.data;
     } catch (error) {
         console.error(`Error fetching leaderboard by puzzles solved:`, error);
@@ -103,9 +105,10 @@ export const fetchLeaderboardByPuzzlesSolved = async (limit: number = 5) => {
     }
 };
 
-export const fetchLeaderboardByLongestStreak = async (limit: number = 5) => {
+export const fetchLeaderboardByLongestStreak = async (limit: number = 5, timestamp?: number) => {
     try {
-        const response = await api.get(`/api/leaderboard/longest-streak?limit=${limit}`);
+        const url = `/api/leaderboard/longest-streak?limit=${limit}${timestamp ? `&t=${timestamp}` : ''}`;
+        const response = await api.get(url);
         return response.data;
     } catch (error) {
         console.error(`Error fetching leaderboard by longest streak:`, error);
