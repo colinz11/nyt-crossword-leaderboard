@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Button, CircularProgress } from '@mui/material';
+import { Button, CircularProgress, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import moment from 'moment';
 import SummaryStatistics from '../components/SummaryStatistics';
 import WeeklyBarChart from '../components/WeeklyBarChart';
 import { fetchUserStats, refreshUserSolutions } from '../services/FetchData';
@@ -27,6 +28,8 @@ interface UserStats {
   }[];
 }
 
+type TimePeriod = 'all' | '1y' | '6m' | '3m' | '1m' | '7d';
+
 const UserPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const [stats, setStats] = useState<{ value: number | string; label: string }[]>([]);
@@ -35,6 +38,26 @@ const UserPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [timePeriod, setTimePeriod] = useState<TimePeriod>('all');
+
+  const getDateRange = (period: TimePeriod): { startDate: string | null, endDate: string } => {
+    const endDate = moment().format('YYYY-MM-DD');
+    
+    switch (period) {
+      case '1y':
+        return { startDate: moment().subtract(1, 'year').format('YYYY-MM-DD'), endDate };
+      case '6m':
+        return { startDate: moment().subtract(6, 'months').format('YYYY-MM-DD'), endDate };
+      case '3m':
+        return { startDate: moment().subtract(3, 'months').format('YYYY-MM-DD'), endDate };
+      case '1m':
+        return { startDate: moment().subtract(1, 'month').format('YYYY-MM-DD'), endDate };
+      case '7d':
+        return { startDate: moment().subtract(7, 'days').format('YYYY-MM-DD'), endDate };
+      default:
+        return { startDate: null, endDate };
+    }
+  };
 
   const fetchStatsAsync = async () => {
     try {
@@ -43,7 +66,8 @@ const UserPage: React.FC = () => {
         return;
       }
 
-      const data: UserStats = await fetchUserStats(userId);
+      const { startDate, endDate } = getDateRange(timePeriod);
+      const data: UserStats = await fetchUserStats(userId, startDate, endDate);
       setUsername(data.username);
       setStats([
         { value: data.totalPuzzlesSolved, label: 'Puzzles Solved' },
@@ -63,16 +87,18 @@ const UserPage: React.FC = () => {
 
   useEffect(() => {
     fetchStatsAsync();
-  }, [userId]);
+  }, [userId, timePeriod]);
 
   const handleRefresh = async () => {
     if (!userId || refreshing) return;
     
     setRefreshing(true);
     setError(null);
+
+    const { startDate, endDate } = getDateRange(timePeriod);
     
     try {
-      await refreshUserSolutions(userId);
+      await refreshUserSolutions(userId, startDate || undefined, endDate);
       await fetchStatsAsync();
     } catch (err) {
       console.error('Error refreshing user solutions:', err);
@@ -80,6 +106,10 @@ const UserPage: React.FC = () => {
     } finally {
       setRefreshing(false);
     }
+  };
+
+  const handleTimePeriodChange = (event: SelectChangeEvent<TimePeriod>) => {
+    setTimePeriod(event.target.value as TimePeriod);
   };
 
   if (error) {
@@ -93,20 +123,38 @@ const UserPage: React.FC = () => {
   return (
     <div className="user-page">
       <div className="container">
-        {/* Page Title and Refresh Button */}
+        {/* Page Title and Controls */}
         <div className="user-page-header">
           <div className="header-content">
             <h1 className="user-page-title">{username}'s Statistics</h1>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleRefresh}
-              disabled={refreshing}
-              startIcon={refreshing ? <CircularProgress size={20} color="inherit" /> : <RefreshIcon />}
-              className="refresh-button"
-            >
-              {refreshing ? 'Refreshing...' : 'Refresh Stats'}
-            </Button>
+            <div className="header-controls">
+              <FormControl size="small" sx={{ minWidth: 120, mr: 2 }}>
+                <InputLabel id="time-period-label">Time Period</InputLabel>
+                <Select
+                  labelId="time-period-label"
+                  value={timePeriod}
+                  label="Time Period"
+                  onChange={handleTimePeriodChange}
+                >
+                  <MenuItem value="all">All Time</MenuItem>
+                  <MenuItem value="1y">Last Year</MenuItem>
+                  <MenuItem value="6m">Last 6 Months</MenuItem>
+                  <MenuItem value="3m">Last 3 Months</MenuItem>
+                  <MenuItem value="1m">Last Month</MenuItem>
+                  <MenuItem value="7d">Last 7 Days</MenuItem>
+                </Select>
+              </FormControl>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleRefresh}
+                disabled={refreshing}
+                startIcon={refreshing ? <CircularProgress size={20} color="inherit" /> : <RefreshIcon />}
+                className="refresh-button"
+              >
+                {refreshing ? 'Refreshing...' : 'Refresh Stats'}
+              </Button>
+            </div>
           </div>
         </div>
 

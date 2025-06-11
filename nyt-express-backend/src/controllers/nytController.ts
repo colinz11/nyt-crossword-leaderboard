@@ -72,7 +72,8 @@ class NytController {
 
         const startDate = moment(start as string);
         const endDate = moment(end as string);
-
+     
+        console.log("Fetching solutions for user: " + userID + " from " + startDate.toDate() + " to " + endDate.toDate());
         if (!startDate.isValid() || !endDate.isValid()) {
             res.status(400).json({ message: 'Invalid date format' });
             return;
@@ -91,14 +92,18 @@ class NytController {
                 printDate: { $gte: startDate.toDate(), $lte: endDate.toDate() }
             });
 
+            console.log("Found " + puzzles.length + " puzzles to fetch solutions for");
+
             await Promise.all(puzzles.map(async (puzzle) => {
                 const solutionData = await nytService.fetchSolution(String(puzzle.puzzleID), String(user.userID));
+                console.log("Fetched solution for puzzle: " + puzzle.puzzleID);
                 await this.solutionModel.findOneAndUpdate(
                     { userID: user.userID, puzzleID: puzzle.puzzleID },
                     { ...solutionData, userID: userID },
                     { upsert: true, new: true }
                 );
             }));
+          
 
             res.status(200).json({ message: 'Solutions fetched and saved successfully' });
         } catch (error: any) {

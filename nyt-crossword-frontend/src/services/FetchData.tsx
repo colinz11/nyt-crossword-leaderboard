@@ -14,26 +14,39 @@ const api = axios.create({
 /**
  * Fetch user stats from the backend.
  * @param userID - The ID of the user whose stats are to be fetched.
+ * @param startDate - Optional start date for filtering stats (YYYY-MM-DD).
+ * @param endDate - Optional end date for filtering stats (YYYY-MM-DD).
  * @returns A promise resolving to the user stats data.
  */
-export const fetchUserStats = async (userID: string) => {
+export const fetchUserStats = async (userID: string, startDate?: string | null, endDate?: string) => {
     try {
-        const response = await api.get(`/api/users/stats/${userID}`);
-        return response.data; // Return the stats data from the response
+        const params = new URLSearchParams();
+        if (startDate) params.append('startDate', startDate);
+        if (endDate) params.append('endDate', endDate);
+        
+        const url = `/api/users/stats/${userID}${params.toString() ? `?${params.toString()}` : ''}`;
+        const response = await api.get(url);
+        return response.data;
     } catch (error) {
         console.error(`Error fetching user stats for userID ${userID}:`, error);
-        throw error; // Re-throw the error for the caller to handle
+        throw error;
     }
 };
 
 /**
  * Refresh user solutions from NYT.
  * @param userID - The ID of the user whose solutions should be refreshed.
+ * @param startDate - Optional start date for refreshing solutions (YYYY-MM-DD).
+ * @param endDate - Optional end date for refreshing solutions (YYYY-MM-DD).
  * @returns A promise resolving when the refresh is complete.
  */
-export const refreshUserSolutions = async (userID: string) => {
+export const refreshUserSolutions = async (userID: string, startDate?: string | null, endDate?: string) => {
     try {
-        const response = await api.post(`/api/nyt/refresh-solutions`, { userID });
+        const response = await api.post(`/api/nyt/fetch-solutions`, { 
+            userID, 
+            start: startDate || undefined, 
+            end: endDate 
+        });
         return response.data;
     } catch (error) {
         console.error(`Error refreshing solutions for userID ${userID}:`, error);
