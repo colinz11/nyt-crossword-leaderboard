@@ -28,36 +28,73 @@ class UserEngine {
         this.solutionModel = solutionModel;
     }
     
-    async getUserSolutions(userID: string): Promise<void> {
+    async getUserSolutions(userID: string, startDate?: string, endDate?: string): Promise<void> {
         try {
-            // Fetch all solutions for the user
-            this.userSolutions  = await this.solutionModel.find({ userID }).exec();
-            this.solvedPuzzles = this.userSolutions.filter(solution => solution.calcs?.solved);
-            // Extract unique puzzleIDs from the solutions
-            const puzzleIDs = [...new Set(this.userSolutions.map(solution => solution.puzzleID))];
-    
-            // Fetch all puzzles matching the puzzleIDs in one query
-            const puzzles = await this.puzzleModel.find({ puzzleID: { $in: puzzleIDs } }).exec();
-    
+            // Build puzzle query with date range if provided
+            const puzzleQuery: any = {
+                printDate: { $lte: moment().endOf('day').toDate() }, // Never include future puzzles
+                publishType: 'Mini' // Only include mini puzzles
+            };
+            
+            if (startDate || endDate) {
+                if (startDate) {
+                    puzzleQuery.printDate.$gte = moment(startDate).startOf('day').toDate();
+                }
+                if (endDate) {
+                    // Make sure we don't exceed today's date
+                    const endMoment = moment(endDate).endOf('day');
+                    const today = moment().endOf('day');
+                    puzzleQuery.printDate.$lte = endMoment.isAfter(today) ? today.toDate() : endMoment.toDate();
+                }
+            }
+
+            console.log('Puzzle query:', JSON.stringify(puzzleQuery, null, 2));
+
+            // First get valid puzzles within the date range
+            const validPuzzles = await this.puzzleModel.find(puzzleQuery).sort({ printDate: 1 }).exec();
+
+            const validPuzzleIds = validPuzzles.map(puzzle => puzzle.puzzleID);
+
+            // Then fetch only solutions for these valid puzzles
+            this.userSolutions = await this.solutionModel.find({ 
+                userID,
+                puzzleID: { $in: validPuzzleIds }
+            }).exec();
+
             // Create a map of puzzleID to printDate for quick lookup
-            const puzzleDateMap = puzzles.reduce((map, puzzle) => {
+            const puzzleDateMap = validPuzzles.reduce((map, puzzle) => {
                 map[puzzle.puzzleID] = puzzle.printDate;
                 return map;
             }, {} as Record<string, Date>);
-    
-            // Add printDate to each solution and filter out solutions without a matching puzzle
+
+            // Add printDate to each solution
             const solutionsWithDates = this.userSolutions.map(solution => ({
                 ...solution.toObject(),
                 printDate: puzzleDateMap[solution.puzzleID],
-            })).filter(solution => solution.printDate);
-    
+            }));
+
             // Sort solutions by printDate (ascending order)
             this.sortedSolutions = solutionsWithDates.sort(
                 (a, b) => new Date(a.printDate).getTime() - new Date(b.printDate).getTime()
             );
-            
-    
-            console.log(`User solutions fetched and sorted for userID ${userID}:`, this.userSolutions.length);
+
+            // Update solvedPuzzles to only include solved puzzles
+            this.solvedPuzzles = this.sortedSolutions.filter(solution => solution.calcs?.solved);
+
+            // Log date range of returned solutions
+            if (this.sortedSolutions.length > 0) {
+                console.log('\nSolutions summary:');
+                console.log('First solution date:', moment(this.sortedSolutions[0].printDate).format('YYYY-MM-DD'));
+                console.log('Last solution date:', moment(this.sortedSolutions[this.sortedSolutions.length - 1].printDate).format('YYYY-MM-DD'));
+                console.log('Number of solutions:', this.sortedSolutions.length);
+                console.log('Number of solved puzzles:', this.solvedPuzzles.length);
+            }
+
+            console.log(`User solutions fetched and sorted for userID ${userID}:`, {
+                totalPuzzlesInRange: validPuzzles.length,
+                matchingSolutions: this.sortedSolutions.length,
+                solvedPuzzles: this.solvedPuzzles.length
+            });
         } catch (error) {
             console.error(`Error fetching solutions for userID ${userID}:`, error);
             throw new Error('Failed to fetch and sort user solutions');
@@ -96,8 +133,8 @@ class UserEngine {
         let currentStreak = 0;
     
         // Iterate through solutions in chronological order
-        for (const solution of this.sortedSolutions) {
-            if (solution.calcs?.solved) {
+        for (let i = this.sortedSolutions.length - 1; i >= 0; i--) {
+            if (this.sortedSolutions[i].calcs?.solved) {
                 currentStreak++;
                 longestStreak = Math.max(longestStreak, currentStreak);
             } else {

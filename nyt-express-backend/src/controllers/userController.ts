@@ -3,19 +3,21 @@ import UserEngine from '../engine/userEngine';
 import { Solution } from '../models/solution';
 import { Puzzle } from '../models/puzzle';
 import { User } from '../models/user';
+import moment from 'moment';
 
 const userEngine = new UserEngine(Solution, Puzzle);
 
 export const getUserStats = async (req: Request, res: Response): Promise<void> => {
     try {
         const { userID } = req.params;
+        const { startDate, endDate } = req.query;
 
         if (!userID) {
             res.status(400).json({ error: 'User ID is required' });
             return;
         }
 
-        console.log('Fetching user stats for userId:', userID);
+        console.log('Fetching user stats for userId:', userID, 'startDate:', startDate, 'endDate:', endDate);
         
         // Fetch user details
         const user = await User.findOne({ userID: Number(userID) });
@@ -30,8 +32,8 @@ export const getUserStats = async (req: Request, res: Response): Promise<void> =
             return;
         }
 
-        // Fetch user solutions
-        await userEngine.getUserSolutions(userID);
+        // Fetch user solutions with date range if provided
+        await userEngine.getUserSolutions(userID, startDate as string, endDate as string);
 
         // Calculate stats
         const averageSolveTime = userEngine.getAverageSolveTime();

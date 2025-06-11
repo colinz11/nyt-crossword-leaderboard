@@ -70,6 +70,7 @@ class PuzzleEngine {
         $gte: startDate,
         $lte: endDate,
       },
+      publishType: 'Mini', // Only include mini puzzles
     });
     return puzzle;
   }

@@ -32,7 +32,27 @@ export class LeaderboardEngine {
 
     async getTopSolversByAverageSpeed(limit: number = 5): Promise<LeaderboardUserAverageTime[]> {
         const results = await this.solutionModel.aggregate([
-            { $match: { 'calcs.solved': true, 'calcs.secondsSpentSolving': { $gt: 0 } } },
+            {
+                $addFields: {
+                    puzzleIDNum: { $toInt: "$puzzleID" }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'puzzles',
+                    localField: 'puzzleIDNum',
+                    foreignField: 'puzzleID',
+                    as: 'puzzle'
+                }
+            },
+            { $unwind: '$puzzle' },
+            {
+                $match: {
+                    'calcs.solved': true,
+                    'calcs.secondsSpentSolving': { $gt: 0 },
+                    'puzzle.publishType': 'Mini'
+                }
+            },
             {
                 $group: {
                     _id: '$userID',
@@ -57,11 +77,30 @@ export class LeaderboardEngine {
 
     async getTopSolversByPuzzlesSolved(limit: number = 5): Promise<LeaderboardUserPuzzlesSolved[]> {
         const results = await this.solutionModel.aggregate([
-            { $match: { 'calcs.solved': true } },
+            {
+                $addFields: {
+                    puzzleIDNum: { $toInt: "$puzzleID" }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'puzzles',
+                    localField: 'puzzleIDNum',
+                    foreignField: 'puzzleID',
+                    as: 'puzzle'
+                }
+            },
+            { $unwind: '$puzzle' },
+            {
+                $match: {
+                    'calcs.solved': true,
+                    'puzzle.publishType': 'Mini'
+                }
+            },
             {
                 $group: {
                     _id: '$userID',
-                    puzzlesSolvedCount: { $sum: 1 }, // Counts number of solutions, assumes one solution per puzzle per user
+                    puzzlesSolvedCount: { $sum: 1 },
                 },
             },
             {

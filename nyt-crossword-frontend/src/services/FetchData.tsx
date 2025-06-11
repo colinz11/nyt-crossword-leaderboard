@@ -1,4 +1,5 @@
 import axios from 'axios';
+import moment from 'moment';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
 const API_KEY = process.env.REACT_APP_API_KEY;
@@ -14,27 +15,78 @@ const api = axios.create({
 /**
  * Fetch user stats from the backend.
  * @param userID - The ID of the user whose stats are to be fetched.
+ * @param startDate - Optional start date for filtering stats (YYYY-MM-DD).
+ * @param endDate - Optional end date for filtering stats (YYYY-MM-DD).
  * @returns A promise resolving to the user stats data.
  */
-export const fetchUserStats = async (userID: string) => {
+export const fetchUserStats = async (userID: string, startDate?: string | null, endDate?: string) => {
     try {
-        const response = await api.get(`/api/users/stats/${userID}`);
-        return response.data; // Return the stats data from the response
+        const params = new URLSearchParams();
+        if (startDate) params.append('startDate', startDate);
+        if (endDate) params.append('endDate', endDate);
+        
+        const url = `/api/users/stats/${userID}${params.toString() ? `?${params.toString()}` : ''}`;
+        const response = await api.get(url);
+        return response.data;
     } catch (error) {
         console.error(`Error fetching user stats for userID ${userID}:`, error);
-        throw error; // Re-throw the error for the caller to handle
+        throw error;
     }
 };
 
 /**
- * Refresh user solutions from NYT.
+ * Refresh user solutions from NYT in batches.
  * @param userID - The ID of the user whose solutions should be refreshed.
- * @returns A promise resolving when the refresh is complete.
+ * @param startDate - Optional start date for refreshing solutions (YYYY-MM-DD).
+ * @param endDate - Optional end date for refreshing solutions (YYYY-MM-DD).
+ * @param batchSize - Number of days to process in each batch (default: 30).
+ * @param onProgress - Callback for progress updates.
+ * @returns A promise resolving when all batches are complete.
  */
-export const refreshUserSolutions = async (userID: string) => {
+export const refreshUserSolutions = async (
+    userID: string, 
+    startDate?: string | null, 
+    endDate?: string,
+    batchSize: number = 30,
+    onProgress?: (progress: { completed: number; total: number }) => void
+) => {
     try {
-        const response = await api.post(`/api/nyt/refresh-solutions`, { userID });
-        return response.data;
+        const start = startDate ? moment(startDate) : moment().subtract(1, 'year');
+        const end = endDate ? moment(endDate) : moment();
+        const totalDays = end.diff(start, 'days');
+        let completed = 0;
+
+        // Calculate the number of batches
+        const batches = [];
+        let currentStart = start.clone();
+        while (currentStart.isBefore(end)) {
+            const batchEnd = moment.min(currentStart.clone().add(batchSize, 'days'), end);
+            batches.push({
+                start: currentStart.format('YYYY-MM-DD'),
+                end: batchEnd.format('YYYY-MM-DD')
+            });
+            currentStart = batchEnd.clone().add(1, 'days');
+        }
+
+        // Process each batch sequentially
+        for (const batch of batches) {
+            await api.post(`/api/nyt/fetch-solutions`, { 
+                userID, 
+                start: batch.start, 
+                end: batch.end 
+            });
+            
+            completed += moment(batch.end).diff(moment(batch.start), 'days') + 1;
+            onProgress?.({
+                completed: Math.min(completed, totalDays),
+                total: totalDays
+            });
+
+            // Small delay between batches to avoid overwhelming the server
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+
+        return { message: 'All solutions refreshed successfully' };
     } catch (error) {
         console.error(`Error refreshing solutions for userID ${userID}:`, error);
         throw error;
@@ -70,9 +122,10 @@ export const fetchTodaysPuzzleData = async () => {
     }
 };
 
-export const fetchLeaderboardByAverageTime = async (limit: number = 5) => {
+export const fetchLeaderboardByAverageTime = async (limit: number = 5, timestamp?: number) => {
     try {
-        const response = await api.get(`/api/leaderboard/average-time?limit=${limit}`);
+        const url = `/api/leaderboard/average-time?limit=${limit}${timestamp ? `&t=${timestamp}` : ''}`;
+        const response = await api.get(url);
         return response.data;
     } catch (error) {
         console.error(`Error fetching leaderboard by average time:`, error);
@@ -80,9 +133,10 @@ export const fetchLeaderboardByAverageTime = async (limit: number = 5) => {
     }
 };
 
-export const fetchLeaderboardByPuzzlesSolved = async (limit: number = 5) => {
+export const fetchLeaderboardByPuzzlesSolved = async (limit: number = 5, timestamp?: number) => {
     try {
-        const response = await api.get(`/api/leaderboard/puzzles-solved?limit=${limit}`);
+        const url = `/api/leaderboard/puzzles-solved?limit=${limit}${timestamp ? `&t=${timestamp}` : ''}`;
+        const response = await api.get(url);
         return response.data;
     } catch (error) {
         console.error(`Error fetching leaderboard by puzzles solved:`, error);
@@ -90,9 +144,10 @@ export const fetchLeaderboardByPuzzlesSolved = async (limit: number = 5) => {
     }
 };
 
-export const fetchLeaderboardByLongestStreak = async (limit: number = 5) => {
+export const fetchLeaderboardByLongestStreak = async (limit: number = 5, timestamp?: number) => {
     try {
-        const response = await api.get(`/api/leaderboard/longest-streak?limit=${limit}`);
+        const url = `/api/leaderboard/longest-streak?limit=${limit}${timestamp ? `&t=${timestamp}` : ''}`;
+        const response = await api.get(url);
         return response.data;
     } catch (error) {
         console.error(`Error fetching leaderboard by longest streak:`, error);

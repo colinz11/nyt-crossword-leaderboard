@@ -1,70 +1,68 @@
 .user-page {
-  padding: var(--spacing-xl) 0;
+  padding: 20px;
   min-height: 100vh;
   background-color: var(--background-alt);
 }
 
-.user-page .container {
+.container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 var(--spacing-md);
 }
 
 .user-page-header {
-  text-align: center;
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: 30px;
 }
 
 .header-content {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  gap: var(--spacing-md);
+  flex-wrap: wrap;
+  gap: 20px;
 }
 
 .user-page-title {
-  font-family: var(--font-primary);
-  font-size: 2.5rem;
-  color: var(--text-primary);
   margin: 0;
+  font-size: 2rem;
+  color: #333;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .refresh-button {
-  min-width: 150px;
+  white-space: nowrap;
 }
 
 .weekly-chart-section {
-  margin-top: var(--spacing-xxl);
-  background-color: var(--background);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  padding: var(--spacing-lg);
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .weekly-chart-title {
-  font-family: var(--font-primary);
-  font-size: 1.75rem;
-  color: var(--text-primary);
-  text-align: center;
-  margin-bottom: var(--spacing-lg);
+  margin: 0 0 20px;
+  font-size: 1.5rem;
+  color: #333;
 }
 
 .user-page-error {
+  color: #d32f2f;
+  padding: 20px;
   text-align: center;
-  color: var(--accent);
-  padding: var(--spacing-xl);
-  background-color: var(--background);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  margin: var(--spacing-xl) auto;
-  max-width: 600px;
+  font-size: 1.2rem;
 }
 
 .user-page-loading {
   text-align: center;
-  color: var(--text-secondary);
-  padding: var(--spacing-xl);
-  font-style: italic;
+  padding: 40px;
+  font-size: 1.2rem;
+  color: #666;
 }
 
 /* Responsive design */

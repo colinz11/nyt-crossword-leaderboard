@@ -20,9 +20,62 @@
   gap: var(--spacing-md);
 }
 
+.token-field {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+}
+
+.help-icon {
+  margin-top: var(--spacing-lg) !important;
+  color: var(--text-secondary) !important;
+}
+
+.token-help {
+  padding: var(--spacing-sm);
+  font-size: 0.875rem;
+  max-width: 300px;
+}
+
+.token-help p {
+  margin: var(--spacing-sm) 0;
+}
+
+.token-help ol {
+  margin: var(--spacing-md) 0;
+  padding-left: var(--spacing-lg);
+  text-align: left;
+}
+
+.token-help li {
+  margin: var(--spacing-xs) 0;
+}
+
+.token-help a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.token-help a:hover {
+  text-decoration: underline;
+}
+
+.token-tooltip {
+  background-color: var(--background) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
 /* Responsive adjustments */
 @media (max-width: 600px) {
   .login-paper {
     padding: var(--spacing-lg);
+  }
+
+  .token-help {
+    font-size: 0.75rem;
+    max-width: 250px;
   }
 } 
