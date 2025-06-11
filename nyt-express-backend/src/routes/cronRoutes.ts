@@ -5,17 +5,7 @@ import moment from 'moment';
 
 const router = Router();
 
-// Verify cron request is from Vercel
-const verifyCron = (req: Request, res: Response, next: NextFunction): void => {
-    // Vercel sends this header with cron jobs
-    if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
-        res.status(401).json({ error: 'Unauthorized' });
-        return;
-    }
-    next();
-};
-
-router.post('/refresh-puzzle', verifyCron, async (req: Request, res: Response): Promise<void> => {
+router.post('/refresh-puzzle', async (req: Request, res: Response): Promise<void> => {
     try {
         const baseUrl = process.env.BASE_URL || 'http://localhost:8080';
         
