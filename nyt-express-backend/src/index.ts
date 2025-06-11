@@ -1,7 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import nytRoutes from './routes/nytRoutes';
-import cronRoutes from './routes/cronRoutes';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import { authenticateApiKey } from './middleware/auth';
@@ -30,9 +29,6 @@ mongoose.connect(process.env.DATABASE_URL as string)
 app.get('/health', (req: Request, res: Response) => {
     res.status(200).json({ status: 'ok' });
 });
-
-// Cron job routes - protected by CRON_SECRET
-app.use('/api/cron', cronRoutes);
 
 // Apply authentication middleware to all API routes
 app.use('/api', authenticateApiKey, nytRoutes);
