@@ -16,6 +16,8 @@ import {
     getLeaderboardByPuzzlesSolved,
     getLeaderboardByLongestStreak
 } from '../controllers/leaderboardController';
+import { refreshPuzzle } from '../api/cron/refresh-puzzle';
+import { Request as ExpressRequest, Response as ExpressResponse } from 'express';
 
 const router = Router();
 const nytController = new NytController(Puzzle, Solution, User);
@@ -42,5 +44,13 @@ router.get('/puzzles/by-date/:date', getPuzzleByDate);
 router.get('/leaderboard/average-time', getLeaderboardByAverageTime);
 router.get('/leaderboard/puzzles-solved', getLeaderboardByPuzzlesSolved);
 router.get('/leaderboard/longest-streak', getLeaderboardByLongestStreak);
+
+// Cron Routes
+router.get('/cron/refresh-puzzle', (req: ExpressRequest, res: ExpressResponse) => {
+    // The imported `refreshPuzzle` handler has a signature that is not directly
+    // compatible with Express. We cast the request and response objects to 'any'
+    // to bypass the type-checking and allow Express to call the handler.
+    refreshPuzzle(req as any, res as any);
+});
 
 export default router;

@@ -12,11 +12,12 @@ if (!API_KEY) {
 
 export const authenticateApiKey = (req: Request, res: Response, next: NextFunction): void => {
     const apiKey = req.header('X-API-Key');
+    const authHeader = req.headers.authorization;
 
-    if (!apiKey || apiKey !== API_KEY) {
+    if ((!apiKey || apiKey !== API_KEY) && authHeader !== `Bearer ${API_KEY}`) {
         res.status(401).json({ error: 'Unauthorized: Invalid API key' });
         return;
     }
-
+    console.log('Authenticated');
     next();
 }; 

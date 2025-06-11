@@ -1,10 +1,9 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
 import mongoose from 'mongoose';
 import moment from 'moment';
-import NytController from '../../src/controllers/nytController';
-import { Puzzle } from '../../src/models/puzzle';
-import { Solution } from '../../src/models/solution';
-import { User } from '../../src/models/user';
+import NytController from '../../controllers/nytController';
+import { Puzzle } from '../../models/puzzle';
+import { Solution } from '../../models/solution';
+import { User } from '../../models/user';
 import { Request, Response } from 'express';
 
 // Helper to create a mock Express response
@@ -22,12 +21,8 @@ const createMockResponse = () => {
     return res as Response;
 };
 
-export default async function handler(
-  request: VercelRequest,
-  response: VercelResponse,
-) {
-
-
+export const refreshPuzzle = async (request: Request, response: Response) => {
+    console.log('Cron job started');
     try {
         // Connect to MongoDB
         if (mongoose.connection.readyState === 0) {
