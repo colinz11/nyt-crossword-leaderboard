@@ -24,6 +24,7 @@ const nytController = new NytController(Puzzle, Solution, User);
 router.post('/nyt/puzzles', nytController.fetchAndSavePuzzlesByDateRange.bind(nytController));
 router.post('/nyt/refresh-solutions', nytController.refreshUserSolutions.bind(nytController));
 router.post('/nyt/save-user', nytController.saveUser.bind(nytController));
+router.post('/nyt/fetch-solutions', nytController.fetchAndSaveSolutionsForUser.bind(nytController));
 
 // User Routes
 router.get('/users/stats/:userID', getUserStats);
