@@ -19,13 +19,13 @@ router.post('/refresh-puzzle', async (req: Request, res: Response): Promise<void
         
         // Call the /nyt/puzzles endpoint to fetch and save puzzles
         try {
-            const puzzleResponse = await axios.post(`${baseUrl}/nyt/puzzles`, {
+            const puzzleResponse = await axios.post(`${baseUrl}/api/nyt/puzzles`, {
                 type: 'mini',
                 start,
                 end
             }, {
                 headers: {
-                    'X-API-Key': process.env.API_KEY,
+                    'X-API-Key': process.env.REACT_APP_API_KEY,
                     'Content-Type': 'application/json'
                 }
             });
@@ -47,13 +47,14 @@ router.post('/refresh-puzzle', async (req: Request, res: Response): Promise<void
         // Call the /nyt/fetch-solutions endpoint for each user
         for (const user of users) {
             try {
-                const solutionResponse = await axios.post(`${baseUrl}/nyt/fetch-solutions`, {
+                console.log(`Fetching solutions for user ${user.userID}`);
+                const solutionResponse = await axios.post(`${baseUrl}/api/nyt/fetch-solutions`, {
                     userID: user.userID,
                     start,
                     end
                 }, {
                     headers: {
-                        'X-API-Key': process.env.API_KEY,
+                        'X-API-Key': process.env.REACT_APP_API_KEY,
                         'Content-Type': 'application/json'
                     }
                 });
