@@ -37,6 +37,7 @@ const UserPage: React.FC = () => {
   const [username, setUsername] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [refreshProgress, setRefreshProgress] = useState<{ completed: number; total: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('all');
 
@@ -94,17 +95,27 @@ const UserPage: React.FC = () => {
     
     setRefreshing(true);
     setError(null);
+    setRefreshProgress(null);
 
     const { startDate, endDate } = getDateRange(timePeriod);
     
     try {
-      await refreshUserSolutions(userId, startDate || undefined, endDate);
+      await refreshUserSolutions(
+        userId, 
+        startDate, 
+        endDate,
+        30, // Process 30 days at a time
+        (progress) => {
+          setRefreshProgress(progress);
+        }
+      );
       await fetchStatsAsync();
     } catch (err) {
       console.error('Error refreshing user solutions:', err);
       setError('Failed to refresh solutions.');
     } finally {
       setRefreshing(false);
+      setRefreshProgress(null);
     }
   };
 
@@ -152,7 +163,11 @@ const UserPage: React.FC = () => {
                 startIcon={refreshing ? <CircularProgress size={20} color="inherit" /> : <RefreshIcon />}
                 className="refresh-button"
               >
-                {refreshing ? 'Refreshing...' : 'Refresh Stats'}
+                {refreshing ? (
+                  refreshProgress 
+                    ? `Refreshing... ${Math.round((refreshProgress.completed / refreshProgress.total) * 100)}%`
+                    : 'Refreshing...'
+                ) : 'Refresh Stats'}
               </Button>
             </div>
           </div>
