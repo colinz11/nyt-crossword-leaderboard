@@ -1,8 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { Puzzle } from '../models/puzzle';
-import { Solution } from '../models/solution';
 import { User } from '../models/user';
-import NytService from '../services/nytService';
+import axios from 'axios';
 import moment from 'moment';
 
 const router = Router();
@@ -19,65 +17,60 @@ const verifyCron = (req: Request, res: Response, next: NextFunction): void => {
 
 router.post('/refresh-puzzle', verifyCron, async (req: Request, res: Response): Promise<void> => {
     try {
-        const token = process.env.NYT_TOKEN;
-        if (!token) {
-            throw new Error('NYT_TOKEN environment variable is not set');
-        }
-
-        const nytService = new NytService(token);
-
-        // Get today's date in YYYY-MM-DD format
-        const todayMoment = moment();
-        const tomorrowMoment = todayMoment.clone().add(1, 'day');
-        const today = todayMoment.format('YYYY-MM-DD');
-        const tomorrow = tomorrowMoment.format('YYYY-MM-DD');
+        const baseUrl = process.env.BASE_URL || 'http://localhost:8080';
         
-        // Fetch today's puzzle
-        console.log(`Fetching puzzle for ${today}`);
-        const puzzles = await nytService.fetchPuzzles('mini', today, tomorrow);
-
-        if (puzzles.length === 0) {
-            console.log('No puzzle found for today');
-            res.status(200).json({ message: 'No puzzle found for today' });
-            return;
+        // Get past month date range
+        const endDate = moment();
+        const startDate = moment().subtract(1, 'month');
+        const start = startDate.format('YYYY-MM-DD');
+        const end = endDate.format('YYYY-MM-DD');
+        
+        console.log(`Fetching puzzles from ${start} to ${end}`);
+        
+        // Call the /nyt/puzzles endpoint to fetch and save puzzles
+        try {
+            const puzzleResponse = await axios.post(`${baseUrl}/nyt/puzzles`, {
+                type: 'mini',
+                start,
+                end
+            }, {
+                headers: {
+                    'X-API-Key': process.env.API_KEY,
+                    'Content-Type': 'application/json'
+                }
+            });
+            console.log('Puzzles fetch response:', puzzleResponse.data.message);
+        } catch (error: any) {
+            console.error('Error fetching puzzles:', error.response?.data || error.message);
+            throw new Error('Failed to fetch puzzles');
         }
 
-        // Update or insert the puzzle
-        for (const puzzleData of puzzles) {
-            await Puzzle.findOneAndUpdate(
-                { puzzleID: puzzleData.puzzleID },
-                puzzleData,
-                { upsert: true, new: true }
-            );
-            console.log(`Updated/inserted puzzle ID: ${puzzleData.puzzleID}`);
-        }
-
-        // Fetch and update solutions for all users
+        // Get all users to fetch solutions for
         const users = await User.find();
-        console.log(`Updating solutions for ${users.length} users`);
+        console.log(`Fetching solutions for ${users.length} users`);
 
         const results = {
-            puzzlesUpdated: puzzles.length,
             usersProcessed: 0,
             errors: [] as string[]
         };
 
+        // Call the /nyt/fetch-solutions endpoint for each user
         for (const user of users) {
             try {
-                const userToken = user.cookie;
-                const userNytService = new NytService(userToken);
-
-                for (const puzzle of puzzles) {
-                    const solutionData = await userNytService.fetchSolution(puzzle.puzzleID.toString(), user.userID.toString());
-                    await Solution.findOneAndUpdate(
-                        { userID: user.userID, puzzleID: puzzle.puzzleID },
-                        { ...solutionData, userID: user.userID },
-                        { upsert: true, new: true }
-                    );
-                }
+                const solutionResponse = await axios.post(`${baseUrl}/nyt/fetch-solutions`, {
+                    userID: user.userID,
+                    start,
+                    end
+                }, {
+                    headers: {
+                        'X-API-Key': process.env.API_KEY,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                console.log(`Solutions fetched for user ${user.userID}:`, solutionResponse.data.message);
                 results.usersProcessed++;
-            } catch (error) {
-                const errorMessage = `Error updating solutions for user ${user.userID}: ${error}`;
+            } catch (error: any) {
+                const errorMessage = `Error fetching solutions for user ${user.userID}: ${error.response?.data?.message || error.message}`;
                 console.error(errorMessage);
                 results.errors.push(errorMessage);
             }
