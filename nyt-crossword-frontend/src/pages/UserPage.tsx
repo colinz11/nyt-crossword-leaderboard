@@ -71,7 +71,7 @@ const UserPage: React.FC = () => {
       setUsername(data.username);
       setStats([
         { value: data.totalPuzzlesSolved, label: 'Puzzles Solved' },
-        { value: `${data.autoCompletePct}%`, label: 'Auto Complete Rate' },
+        { value: `${(data.autoCompletePct * 100).toFixed(2)}%`, label: 'Auto Complete Rate' },
         { value: data.currentStreak, label: 'Current Streak' },
         { value: data.longestStreak, label: 'Longest Streak' },
         { value: data.averageSolveTime, label: 'Average Solve Time' },

@@ -8,7 +8,10 @@ import {
   Typography,
   CircularProgress,
   Alert,
+  Tooltip,
+  IconButton,
 } from '@mui/material';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { verifyAndCreateUser } from '../services/FetchData';
 import './LoginPage.css';
 import { trackUserRegistration } from '../utils/analytics';
@@ -49,6 +52,21 @@ const LoginPage: React.FC = () => {
     }
   };
 
+  const tokenTooltip = (
+    <div className="token-help">
+      <p>To find your NYT-S token:</p>
+      <ol>
+        <li>Go to <a href="https://www.nytimes.com/crosswords" target="_blank" rel="noopener noreferrer">NYT Crosswords</a></li>
+        <li>Make sure you're logged in</li>
+        <li>Open your browser's Developer Tools (F12 or right-click → Inspect)</li>
+        <li>Go to the Application/Storage tab</li>
+        <li>Under Cookies, select "www.nytimes.com"</li>
+        <li>Find the cookie named "NYT-S"</li>
+        <li>Copy its value</li>
+      </ol>
+    </div>
+  );
+
   return (
     <div className="login-page">
       <Container maxWidth="sm">
@@ -77,17 +95,29 @@ const LoginPage: React.FC = () => {
               required
               margin="normal"
             />
-            <TextField
-              label="NYT Token"
-              variant="outlined"
-              fullWidth
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              disabled={loading}
-              required
-              margin="normal"
-              type="password"
-            />
+            <div className="token-field">
+              <TextField
+                label="NYT Token"
+                variant="outlined"
+                fullWidth
+                value={token}
+                onChange={(e) => setToken(e.target.value)}
+                disabled={loading}
+                required
+                margin="normal"
+                type="password"
+              />
+              <Tooltip 
+                title={tokenTooltip}
+                placement="right"
+                arrow
+                classes={{ tooltip: 'token-tooltip' }}
+              >
+                <IconButton size="small" className="help-icon">
+                  <HelpOutlineIcon />
+                </IconButton>
+              </Tooltip>
+            </div>
             <Button
               type="submit"
               variant="contained"
